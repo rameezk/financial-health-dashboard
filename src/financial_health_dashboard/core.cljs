@@ -20,23 +20,26 @@
    [:h3 "Dashboard coming soon (TM)."]
    [:h4 "... maybe ..."]])
 
-(defn simple-component []
-  [:div
-   [:p "I am a component!"]])
-
-(defn green-button [txt]
-  [:button.green txt])
-
 (defn title [txt]
   [:div.title txt])
 
 (defn subtitle [txt]
   [:div.subtitle txt])
 
+(def click-count (reagent/atom 0))
+
+(defn counting-component []
+  [:div
+   "Counting component " [:code "click-count"] " has value: "
+   @click-count ". "
+   [:input {:type "button" :value "Click me!"
+            :on-click #(swap! click-count inc)}]])
+
 (defn app []
   [:div
    [title "Financial Health Dashboard"]
-   [subtitle "...coming soon (tm) ..."]])
+   [subtitle "...coming soon (tm) ..."]
+   [counting-component]])
 
 (defn mount [el]
   (reagent/render-component [app] el))
