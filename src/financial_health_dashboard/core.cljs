@@ -51,7 +51,7 @@
   [:div
    [:nav.navbar.is-dark
     [:div.navbar-brand
-     [:a.navbar-item {:href "#"} "💰 Dashboard"]
+     [:a.navbar-item {:href "#"} "💰 Dashboard (alpha)"]
      [:a.navbar-burger.burger {:id "nav-menu-burger"
                                :on-click (fn []
                                            (do (gc/toggle (js/document.getElementById "nav-menu") "is-active")
