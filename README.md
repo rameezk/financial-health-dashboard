@@ -2,6 +2,8 @@
 
 > 💰 A dashboard for monitoring your financial health
 
+[![Netlify Status](https://api.netlify.com/api/v1/badges/cdc8585c-988e-434f-8705-50002ddd805d/deploy-status)](https://app.netlify.com/sites/zen-yonath-84a0dd/deploys)
+
 Live site can be accessed [here](https://zen-yonath-84a0dd.netlify.app) 👈🏽.
 
 ## Overview
