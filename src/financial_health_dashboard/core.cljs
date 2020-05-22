@@ -1,15 +1,13 @@
 (ns ^:figwheel-hooks financial-health-dashboard.core
   (:require
+   [financial-health-dashboard.changelog :as changelog]
    [goog.dom :as gdom]
    [goog.dom.classlist :as gc]
    [reagent.core :as reagent :refer [atom]]))
 
 (defn multiply [a b] (* a b))
 
-
 ;; define your app data so that it doesn't get over-written on reload
-
-
 (defonce state (reagent/atom {:page :loading
                               :modal {:key :hidden :data nil}}))
 
@@ -44,8 +42,8 @@
 (defmethod render-modal :save [{:keys [modal delimiter]}]
   (println "save modal"))
 
-(defmethod render-modal :changelog [{:keys [modal delimiter]}]
-  (println "changelog modal"))
+(defmethod render-modal :changelog []
+  (changelog/render))
 
 (defn nav []
   [:div
