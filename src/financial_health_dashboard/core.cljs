@@ -4,45 +4,18 @@
    [goog.dom.classlist :as gc]
    [reagent.core :as reagent :refer [atom]]))
 
-(println "Reloaded...")
 
 (defn multiply [a b] (* a b))
 
 
 ;; define your app data so that it doesn't get over-written on reload
+(defonce state (reagent/atom {:modal {:key :hidden :data nil}}))
 
+(defn show-modal [key data]
+  (swap! state #(assoc % :modal {:key key :data data})))
 
-(defonce app-state (atom {:text "Financial Health Dashboard"}))
-
-(defn get-app-element []
-  (gdom/getElement "app"))
-
-(defn hello-world []
-  [:div
-   [:h1 (:text @app-state)]
-   [:h3 "Dashboard coming soon (TM)."]
-   [:h4 "... maybe ..."]])
-
-(defn title [txt]
-  [:div.title txt])
-
-(defn subtitle [txt]
-  [:div.subtitle txt])
-
-(def click-count (reagent/atom 0))
-
-(defn counting-component []
-  [:div
-   "Counting component " [:code "click-count"] " has value: "
-   @click-count ". "
-   [:input {:type "button" :value "Click me!"
-            :on-click #(swap! click-count inc)}]])
-
-(defn app2 []
-  [:div
-   [title "Financial Health Dashboard"]
-   [subtitle "...coming soon (tm) ..."]
-   [counting-component]])
+(defn hide-modal []
+  (swap! state #(assoc % :modal {:key :hidden})))
 
 (defn nav []
   [:div
@@ -58,21 +31,37 @@
       [:span {:aria-hidden "true"}]]]
     [:div.navbar-menu {:id "nav-menu"}
      [:div.navbar-end
-      [:a.navbar-item {:on-click #(js/alert "I don't know what this is either.")}
+      [:a.navbar-item {:on-click #(show-modal :help nil)}
        [:span.icon [:i.fa.fa-question-circle]]]
-      [:a.navbar-item {:on-click #(js/alert "I don't know what this is either.")}
+      [:a.navbar-item {:on-click #(show-modal :upload nil)}
        [:span.icon [:i.fa.fa-upload]]]
-      [:a.navbar-item {:on-click #(js/alert "I don't know what this is either.")}
+      [:a.navbar-item {:on-click #(show-modal :save nil)}
        [:span.icon [:i.fa.fa-save]]]
-      [:a.navbar-item {:on-click #(js/alert "I don't know what this is either.")}
+      [:a.navbar-item {:on-click #(show-modal :changelog nil)}
        [:span.icon [:i.fa.fa-history]]]]]]])
 
-(defn app []
-  [:div
-   [nav]])
+(defn modal [model-state]
+  [:div.modal.is-active
+   [:div.modal-background {:on-click hide-modal}]
+   [:div.modal-content
+    [:div.box
+     [:div "I'm a modal!"]]
+    [:button.modal-close.is-large {:on-click hide-modal}]
+    ]])
+
+(defn app [state]
+    [:div
+     [nav]
+     (when-not (= :hidden (get-in @state [:modal :key]))
+       [modal])
+     ])
+
+(defn get-app-element []
+  (gdom/getElement "app"))
+
 
 (defn mount [el]
-  (reagent/render-component [app] el))
+  (reagent/render-component [app state] el))
 
 (defn mount-app-element []
   (when-let [el (get-app-element)]
