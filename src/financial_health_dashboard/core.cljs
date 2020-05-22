@@ -4,11 +4,12 @@
    [goog.dom.classlist :as gc]
    [reagent.core :as reagent :refer [atom]]))
 
-
 (defn multiply [a b] (* a b))
 
 
 ;; define your app data so that it doesn't get over-written on reload
+
+
 (defonce state (reagent/atom {:modal {:key :hidden :data nil}}))
 
 (defn show-modal [key data]
@@ -46,19 +47,18 @@
    [:div.modal-content
     [:div.box
      [:div "I'm a modal!"]]
-    [:button.modal-close.is-large {:on-click hide-modal}]
-    ]])
+    [:button.modal-close.is-large {:on-click hide-modal}]]])
 
 (defn app [state]
-    [:div
-     [nav]
-     (when-not (= :hidden (get-in @state [:modal :key]))
-       [modal])
-     ])
+  [:div
+   [nav]
+   (when-not (= :hidden (get-in @state [:modal :key]))
+     [modal])
+   [:div.section
+    [:div "section"]]])
 
 (defn get-app-element []
   (gdom/getElement "app"))
-
 
 (defn mount [el]
   (reagent/render-component [app state] el))
