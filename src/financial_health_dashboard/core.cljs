@@ -1,6 +1,7 @@
 (ns ^:figwheel-hooks financial-health-dashboard.core
   (:require
    [goog.dom :as gdom]
+   [goog.dom.classlist :as gc]
    [reagent.core :as reagent :refer [atom]]))
 
 (println "Reloaded...")
@@ -43,24 +44,19 @@
    [subtitle "...coming soon (tm) ..."]
    [counting-component]])
 
-;; (defn app []
-;;   [:div
-;;    [:nav.navbar.is-black
-;;     [:div.navbar-menu
-;;      [:div.navbar-end
-;;       [:a.navbar-item {}
-;;        [:span.icon [:i.fa.fa-question-circle]]]]]]])
-
 (defn nav []
   [:div
    [:nav.navbar.is-dark
     [:div.navbar-brand
      [:a.navbar-item {:href "#"} "💰 Dashboard"]
-     [:a.navbar-burger.burger
+     [:a.navbar-burger.burger {:id "nav-menu-burger"
+                               :on-click (fn []
+                                           (do (gc/toggle (js/document.getElementById "nav-menu") "is-active")
+                                               (gc/toggle (js/document.getElementById "nav-menu-burger") "is-active")))}
       [:span {:aria-hidden "true"}]
       [:span {:aria-hidden "true"}]
       [:span {:aria-hidden "true"}]]]
-    [:div.navbar-menu
+    [:div.navbar-menu {:id "nav-menu"}
      [:div.navbar-end
       [:a.navbar-item {:on-click #(js/alert "I don't know what this is either.")}
        [:span.icon [:i.fa.fa-question-circle]]]
