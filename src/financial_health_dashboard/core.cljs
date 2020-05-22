@@ -17,7 +17,8 @@
 (defn hello-world []
   [:div
    [:h1 (:text @app-state)]
-   [:h3 "Dashboard coming soon (TM)."]])
+   [:h3 "Dashboard coming soon (TM)."]
+   [:h4 "... maybe ..."]])
 
 (defn mount [el]
   (reagent/render-component [hello-world] el))
