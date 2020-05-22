@@ -9,7 +9,7 @@
 
 
 ;; define your app data so that it doesn't get over-written on reload
-(defonce app-state (atom {:text "Hello world!"}))
+(defonce app-state (atom {:text "Financial Health Dashboard"}))
 
 (defn get-app-element []
   (gdom/getElement "app"))
@@ -17,7 +17,7 @@
 (defn hello-world []
   [:div
    [:h1 (:text @app-state)]
-   [:h3 "Wazzzzzzuuuuuuuppppppp!!!"]])
+   [:h3 "Dashboard coming soon (TM)."]])
 
 (defn mount [el]
   (reagent/render-component [hello-world] el))
