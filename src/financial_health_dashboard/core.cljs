@@ -9,6 +9,8 @@
 
 
 ;; define your app data so that it doesn't get over-written on reload
+
+
 (defonce app-state (atom {:text "Financial Health Dashboard"}))
 
 (defn get-app-element []
@@ -53,12 +55,21 @@
   [:div
    [:nav.navbar.is-dark
     [:div.navbar-brand
-     [:a.navbar-item {:href "#"} "💰"]
+     [:a.navbar-item {:href "#"} "💰 Dashboard"]
      [:a.navbar-burger.burger
       [:span {:aria-hidden "true"}]
       [:span {:aria-hidden "true"}]
-      [:span {:aria-hidden "true"}]
-      ]]]])
+      [:span {:aria-hidden "true"}]]]
+    [:div.navbar-menu
+     [:div.navbar-end
+      [:a.navbar-item {:on-click #(js/alert "I don't know what this is either.")}
+       [:span.icon [:i.fa.fa-question-circle]]]
+      [:a.navbar-item {:on-click #(js/alert "I don't know what this is either.")}
+       [:span.icon [:i.fa.fa-upload]]]
+      [:a.navbar-item {:on-click #(js/alert "I don't know what this is either.")}
+       [:span.icon [:i.fa.fa-save]]]
+      [:a.navbar-item {:on-click #(js/alert "I don't know what this is either.")}
+       [:span.icon [:i.fa.fa-history]]]]]]])
 
 (defn mount [el]
   (reagent/render-component [app] el))
@@ -77,4 +88,4 @@
   ;; optionally touch your app-state to force rerendering depending on
   ;; your application
   ;; (swap! app-state update-in [:__figwheel_counter] inc)
-)
+  )
