@@ -1,2 +1,6 @@
 /* some style */
 
+.box {
+    height: 100%;
+    background-color: #303030;
+}

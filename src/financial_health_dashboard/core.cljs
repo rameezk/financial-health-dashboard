@@ -10,13 +10,19 @@
 ;; define your app data so that it doesn't get over-written on reload
 
 
-(defonce state (reagent/atom {:modal {:key :hidden :data nil}}))
+(defonce state (reagent/atom {:page :loading
+                              :modal {:key :hidden :data nil}}))
+
+(defmulti render-page :page)
 
 (defn show-modal [key data]
   (swap! state #(assoc % :modal {:key key :data data})))
 
 (defn hide-modal []
   (swap! state #(assoc % :modal {:key :hidden})))
+
+(defmethod render-page :main [{:keys [data model]}]
+  [:div "main"])
 
 (defn nav []
   [:div
@@ -49,13 +55,41 @@
      [:div "I'm a modal!"]]
     [:button.modal-close.is-large {:on-click hide-modal}]]])
 
+(defn col [size & children]
+  [:div.column {:class (str "is-" size)}
+   [:div.box.is-shadowless.has-text-grey-lighter
+    children]])
+
+(defn info-box [title info & [class]]
+  (println title)
+  [:div.has-text-centered.info-box
+   [:p.heading title]])
+
+(defn page []
+  [:div.columns.is-multiline.is-centered
+   [col 2]
+   [col 2]
+   [col 2]
+   [col 2]
+   [col 2]
+   [col 2]
+   [col 4]
+   [col 4]
+   [col 4]
+   [col 2]
+   [col 2]
+   [col 2]])
+
 (defn app [state]
   [:div
    [nav]
    (when-not (= :hidden (get-in @state [:modal :key]))
      [modal])
    [:div.section
-    [:div "section"]]])
+    [page]]])
+
+(defmethod render-page :loading [state]
+  [:div "loading"])
 
 (defn get-app-element []
   (gdom/getElement "app"))
