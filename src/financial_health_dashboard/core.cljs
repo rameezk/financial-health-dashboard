@@ -36,7 +36,7 @@
 (defn app []
   [:div
    [title "Financial Health Dashboard"]
-   [subtitle "...coming soom (tm) ..."]])
+   [subtitle "...coming soon (tm) ..."]])
 
 (defn mount [el]
   (reagent/render-component [app] el))
