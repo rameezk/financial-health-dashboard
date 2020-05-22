@@ -51,7 +51,7 @@
   [:div.modal.is-active
    [:div.modal-background {:on-click hide-modal}]
    [:div.modal-content
-    [:div.box
+    [:div.box.has-background-light
      [:div "I'm a modal!"]]
     [:button.modal-close.is-large {:on-click hide-modal}]]])
 
@@ -85,7 +85,7 @@
    [nav]
    (when-not (= :hidden (get-in @state [:modal :key]))
      [modal])
-   [:div.section
+   [:div.section.has-background-light
     [page]]])
 
 (defmethod render-page :loading [state]
