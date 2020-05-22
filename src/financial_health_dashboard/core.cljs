@@ -51,7 +51,7 @@
 ;;       [:a.navbar-item {}
 ;;        [:span.icon [:i.fa.fa-question-circle]]]]]]])
 
-(defn app []
+(defn nav []
   [:div
    [:nav.navbar.is-dark
     [:div.navbar-brand
@@ -70,6 +70,10 @@
        [:span.icon [:i.fa.fa-save]]]
       [:a.navbar-item {:on-click #(js/alert "I don't know what this is either.")}
        [:span.icon [:i.fa.fa-history]]]]]]])
+
+(defn app []
+  [:div
+   [nav]])
 
 (defn mount [el]
   (reagent/render-component [app] el))
