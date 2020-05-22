@@ -2,6 +2,8 @@
 
 > 💰 A dashboard for monitoring your financial health
 
+Live site can be accessed [here](https://zen-yonath-84a0dd.netlify.app) 👈🏽.
+
 ## Overview
 
 Assess your financial health with a high level dashboard.
