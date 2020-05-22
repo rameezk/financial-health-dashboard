@@ -3,7 +3,7 @@
    [goog.dom :as gdom]
    [reagent.core :as reagent :refer [atom]]))
 
-(println "Hello world!")
+(println "Reloaded...")
 
 (defn multiply [a b] (* a b))
 
@@ -20,8 +20,26 @@
    [:h3 "Dashboard coming soon (TM)."]
    [:h4 "... maybe ..."]])
 
+(defn simple-component []
+  [:div
+   [:p "I am a component!"]])
+
+(defn green-button [txt]
+  [:button.green txt])
+
+(defn title [txt]
+  [:div.title txt])
+
+(defn subtitle [txt]
+  [:div.subtitle txt])
+
+(defn app []
+  [:div
+   [title "Financial Health Dashboard"]
+   [subtitle "...coming soom (tm) ..."]])
+
 (defn mount [el]
-  (reagent/render-component [hello-world] el))
+  (reagent/render-component [app] el))
 
 (defn mount-app-element []
   (when-let [el (get-app-element)]

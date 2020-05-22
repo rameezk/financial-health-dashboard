@@ -1,2 +1,16 @@
 /* some style */
 
+html {
+    background-color: #34495e;
+}
+
+.title {
+    color: #1abc9c;
+    font-size: 3em;
+}
+
+.subtitle {
+    color: #f1c40f;
+    font-size: 1em;
+}
+
