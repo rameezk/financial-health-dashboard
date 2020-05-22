@@ -15,6 +15,8 @@
 
 (defmulti render-page :page)
 
+(defmulti render-modal (fn [state] (get-in @state [:modal :key])))
+
 (defn show-modal [key data]
   (swap! state #(assoc % :modal {:key key :data data})))
 
@@ -23,6 +25,27 @@
 
 (defmethod render-page :main [{:keys [data model]}]
   [:div "main"])
+
+(defmethod render-modal :upload [{:keys [modal delimiter]}]
+  [:div.has-text-dark
+   [:h1.heading.has-text-centered "Choose file"]
+   [:form
+    [:div.file.is-centered
+     [:label.file-label
+      [:input.file-input {:type "file" :name "storage"}]
+      [:span.file-cta
+       [:span.file-icon
+        [:i.fa.fa-upload]]
+       [:span.file-label "Upload"]]]]]])
+
+(defmethod render-modal :help [{:keys [modal delimiter]}]
+  (println "help modal"))
+
+(defmethod render-modal :save [{:keys [modal delimiter]}]
+  (println "save modal"))
+
+(defmethod render-modal :changelog [{:keys [modal delimiter]}]
+  (println "changelog modal"))
 
 (defn nav []
   [:div
@@ -52,7 +75,7 @@
    [:div.modal-background {:on-click hide-modal}]
    [:div.modal-content
     [:div.box.has-background-light
-     [:div "I'm a modal!"]]
+     (render-modal model-state)]
     [:button.modal-close.is-large {:on-click hide-modal}]]])
 
 (defn col [size & children]
@@ -84,7 +107,7 @@
   [:div
    [nav]
    (when-not (= :hidden (get-in @state [:modal :key]))
-     [modal])
+     [modal state])
    [:div.section.has-background-light
     [page]]])
 
