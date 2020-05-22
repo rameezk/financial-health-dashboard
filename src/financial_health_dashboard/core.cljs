@@ -35,11 +35,30 @@
    [:input {:type "button" :value "Click me!"
             :on-click #(swap! click-count inc)}]])
 
-(defn app []
+(defn app2 []
   [:div
    [title "Financial Health Dashboard"]
    [subtitle "...coming soon (tm) ..."]
    [counting-component]])
+
+;; (defn app []
+;;   [:div
+;;    [:nav.navbar.is-black
+;;     [:div.navbar-menu
+;;      [:div.navbar-end
+;;       [:a.navbar-item {}
+;;        [:span.icon [:i.fa.fa-question-circle]]]]]]])
+
+(defn app []
+  [:div
+   [:nav.navbar.is-dark
+    [:div.navbar-brand
+     [:a.navbar-item {:href "#"} "💰"]
+     [:a.navbar-burger.burger
+      [:span {:aria-hidden "true"}]
+      [:span {:aria-hidden "true"}]
+      [:span {:aria-hidden "true"}]
+      ]]]])
 
 (defn mount [el]
   (reagent/render-component [app] el))
