@@ -110,7 +110,7 @@
   [:div.has-text-centered.info-box
    [:p.heading title]
    [:div.is-centered
-    [:canvas {:id "my-chart" :height "50em"} content]]])
+    [:canvas {:id "my-chart" :height "100vm"} content]]])
 
 (defn page []
   [:div.columns.is-multiline.is-centered
