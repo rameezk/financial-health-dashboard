@@ -45,6 +45,27 @@
 (defmethod render-modal :changelog []
   (changelog/render))
 
+(defn chart
+  []
+  (let [context (.getContext (.getElementById js/document "my-chart") "2d")
+        chart-data {:type "bar"
+                    :options {:legend {:labels {:fontColor "white"}}
+                              :scales {:xAxes [{:ticks {:fontColor "white"}}]}}
+                    :data {:labels ["2012" "2013" "2014" "2015" "2016"]
+                           :datasets [{:data [5 10 15 20 25]
+                                       :label "Rev in MM"
+                                       :backgroundColor "#90EE90"}
+                                      {:data [3 6 9 12 15]
+                                       :label "Cost in MM"
+                                       :backgroundColor "#F08080"}]}}]
+    (js/Chart. context (clj->js chart-data))))
+
+(defn chart-component []
+  (reagent/create-class
+   {:component-did-mount #(chart)
+    :display-name "chart"
+    :reagent-render (fn [] [:canvas {:id "my-chart"}])}))
+
 (defn nav []
   [:div
    [:nav.navbar.is-dark
@@ -82,24 +103,18 @@
     children]])
 
 (defn info-box [title info & [class]]
-  (println title)
   [:div.has-text-centered.info-box
    [:p.heading title]])
 
+(defn chart-box [title content & [class]]
+  [:div.has-text-centered.info-box
+   [:p.heading title]
+   [:div.is-centered
+    [:canvas {:id "my-chart" :height "50em"} content]]])
+
 (defn page []
   [:div.columns.is-multiline.is-centered
-   [col 2]
-   [col 2]
-   [col 2]
-   [col 2]
-   [col 2]
-   [col 2]
-   [col 4]
-   [col 4]
-   [col 4]
-   [col 2]
-   [col 2]
-   [col 2]])
+   [col 12 (chart-box "Revenue" [chart-component] )]])
 
 (defn app [state]
   [:div
