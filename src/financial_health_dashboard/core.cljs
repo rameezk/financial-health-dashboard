@@ -50,7 +50,8 @@
   (let [context (.getContext (.getElementById js/document "my-chart") "2d")
         chart-data {:type "bar"
                     :options {:legend {:labels {:fontColor "white"}}
-                              :scales {:xAxes [{:ticks {:fontColor "white"}}]}}
+                              :scales {:xAxes [{:ticks {:fontColor "white"}}]
+                                       :yAxes [{:ticks {:fontColor "white"}}]}}
                     :data {:labels ["2012" "2013" "2014" "2015" "2016"]
                            :datasets [{:data [5 10 15 20 25]
                                        :label "Rev in MM"
