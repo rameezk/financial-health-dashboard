@@ -45,7 +45,7 @@
 (defmethod render-modal :changelog []
   (changelog/render))
 
-(defn chart
+(defn bar-chart
   [id]
   (let [context (.getContext (.getElementById js/document id) "2d")
         chart-data {:type "bar"
@@ -61,7 +61,24 @@
                                        :backgroundColor "#F08080"}]}}]
     (js/Chart. context (clj->js chart-data))))
 
-(defn chart-component [id]
+(defn line-chart
+  [id]
+  (let [context (.getContext (.getElementById js/document id) "2d")
+        chart-data {:type "line"
+                    :options {:legend {:labels {:fontColor "white"}}
+                              :scales {:xAxes [{:ticks {:fontColor "white"}}]
+                                       :yAxes [{:ticks {:fontColor "white"}}]}}
+                    :data {:labels ["Jan" "Feb" "Mar" "Apr" "May" "June" "July" "Aug" "Sep" "Oct" "Nov" "Dec"]
+                           :datasets [{:data [60000 50000 2300 63000 55000 102000 13000 17000 33400 12000 43000 110000]
+                                       :label "Salary"
+                                       :backgroundColor "#90EE90"}
+                                      {:data [50000 50000 50000 50000 50000 50000 50000 50000 50000 50000 50000 50000]
+                                       :label "YTD Average"
+                                       :borderColor "#F08080"}]}}]
+
+    (js/Chart. context (clj->js chart-data))))
+
+(defn chart-component [id chart]
   (println id)
   (reagent/create-class
    {:component-did-mount #(chart id)
@@ -116,8 +133,7 @@
 
 (defn page []
   [:div.columns.is-multiline.is-centered
-   [col 12 (chart-box "Revenue 1" (chart-component "chart1"))]
-   [col 12 (chart-box "Revenue 2" ( chart-component "chart2" ) )]])
+   [col 12 (chart-box "Salary" (chart-component "salary" line-chart))]])
 
 (defn app [state]
   [:div
