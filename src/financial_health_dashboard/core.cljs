@@ -123,7 +123,8 @@
 
 (defn info-box [title info & [class]]
   [:div.has-text-centered.info-box
-   [:p.heading title]])
+   [:p.heading title]
+   [:p.title {:class (or class "has-text-light")} info]])
 
 (defn chart-box [title content & [class]]
   [:div.has-text-centered.info-box
@@ -133,6 +134,9 @@
 
 (defn page []
   [:div.columns.is-multiline.is-centered
+   [col 4 (info-box "NET WORTH" 100000)]
+   [col 4 (info-box "EMERGENCY FUND MONTHS" 1.23)]
+   [col 4 (info-box "MONTHLY PERFORMANCE" "14 %")]
    [col 12 (chart-box "Salary" (chart-component "salary" line-chart))]])
 
 (defn app [state]
