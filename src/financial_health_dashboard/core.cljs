@@ -134,10 +134,11 @@
 
 (defn page []
   [:div.columns.is-multiline.is-centered
-   [col 4 (info-box "NET WORTH" 100000)]
+   [col 4 (info-box "CURRENT NET WORTH" 100000)]
    [col 4 (info-box "EMERGENCY FUND MONTHS" 1.23)]
    [col 4 (info-box "MONTHLY PERFORMANCE" "14 %")]
-   [col 12 (chart-box "Salary" (chart-component "salary" line-chart))]])
+   [col 6 (chart-box "SALARY" (chart-component "salary" line-chart))]
+   [col 6 (chart-box "NET WORTH" (chart-component "net-worth" line-chart))]])
 
 (defn app [state]
   [:div
