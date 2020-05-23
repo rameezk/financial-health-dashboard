@@ -116,7 +116,8 @@
 
 (defn page []
   [:div.columns.is-multiline.is-centered
-   [col 12 (chart-box "Revenue" ( chart-component "my-chart" ) )]])
+   [col 12 (chart-box "Revenue 1" (chart-component "chart1"))]
+   [col 12 (chart-box "Revenue 2" ( chart-component "chart2" ) )]])
 
 (defn app [state]
   [:div
