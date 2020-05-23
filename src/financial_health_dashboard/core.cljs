@@ -46,8 +46,8 @@
   (changelog/render))
 
 (defn chart
-  []
-  (let [context (.getContext (.getElementById js/document "my-chart") "2d")
+  [id]
+  (let [context (.getContext (.getElementById js/document id) "2d")
         chart-data {:type "bar"
                     :options {:legend {:labels {:fontColor "white"}}
                               :scales {:xAxes [{:ticks {:fontColor "white"}}]
@@ -61,11 +61,12 @@
                                        :backgroundColor "#F08080"}]}}]
     (js/Chart. context (clj->js chart-data))))
 
-(defn chart-component []
+(defn chart-component [id]
+  (println id)
   (reagent/create-class
-   {:component-did-mount #(chart)
+   {:component-did-mount #(chart id)
     :display-name "chart"
-    :reagent-render (fn [] [:canvas {:id "my-chart"}])}))
+    :reagent-render (fn [] [:canvas {:id id :height "100vw"}])}))
 
 (defn nav []
   [:div
@@ -111,11 +112,11 @@
   [:div.has-text-centered.info-box
    [:p.heading title]
    [:div.is-centered
-    [:canvas {:id "my-chart" :height "100vm"} content]]])
+    [content]]])
 
 (defn page []
   [:div.columns.is-multiline.is-centered
-   [col 12 (chart-box "Revenue" [chart-component] )]])
+   [col 12 (chart-box "Revenue" ( chart-component "my-chart" ) )]])
 
 (defn app [state]
   [:div
