@@ -138,6 +138,7 @@
 
 (defn page []
   [:div.columns.is-multiline.is-centered
+   [col 12 (info-box "SAMPLE DASHBOARD" "The below graphs are merely sample data.")]
    [col 4 (info-box "CURRENT NET WORTH" (format-number 100000))]
    [col 4 (info-box "EMERGENCY FUND MONTHS" 1.23)]
    [col 4 (info-box "MONTHLY PERFORMANCE" "14 %")]
