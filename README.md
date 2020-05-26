@@ -4,7 +4,7 @@
 
 [![Netlify Status](https://api.netlify.com/api/v1/badges/cdc8585c-988e-434f-8705-50002ddd805d/deploy-status)](https://app.netlify.com/sites/zen-yonath-84a0dd/deploys)
 
-Live version can be accessed [here](https://financial-health-dashboard.rameezkhan.dev) 👈🏽.
+Live version can be accessed [here](https://financialhealth.app) 👈🏽.
 
 ## Overview
 
