@@ -7,6 +7,10 @@
 
 (defn multiply [a b] (* a b))
 
+(def number-formatter (js/Intl.NumberFormat.))
+
+(defn format-number [number] (.format number-formatter number))
+
 ;; define your app data so that it doesn't get over-written on reload
 (defonce state (reagent/atom {:page :loading
                               :modal {:key :hidden :data nil}}))
@@ -134,7 +138,7 @@
 
 (defn page []
   [:div.columns.is-multiline.is-centered
-   [col 4 (info-box "CURRENT NET WORTH" 100000)]
+   [col 4 (info-box "CURRENT NET WORTH" (format-number 100000))]
    [col 4 (info-box "EMERGENCY FUND MONTHS" 1.23)]
    [col 4 (info-box "MONTHLY PERFORMANCE" "14 %")]
    [col 6 (chart-box "SALARY" (chart-component "salary" line-chart))]
