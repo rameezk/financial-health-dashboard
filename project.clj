@@ -8,6 +8,7 @@
 
   :dependencies [[org.clojure/clojure "1.9.0"]
                  [org.clojure/clojurescript "1.10.520"]
+                 [testdouble/clojurescript.csv "0.4.5"]
                  [reagent "0.8.1"]]
 
   :source-paths ["src"]
