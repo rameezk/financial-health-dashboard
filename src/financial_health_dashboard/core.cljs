@@ -167,6 +167,11 @@
 (defn col [size & children]
   [:div.column {:class (str "is-" size)}
    [:div.box.is-shadowless.has-text-grey-lighter
+    children]])
+
+(defn col-sample [size & children]
+  [:div.column {:class (str "is-" size)}
+   [:div.box.is-shadowless.has-text-grey-lighter
     [:span.tag.is-warning "sample"]
     children]])
 
@@ -183,11 +188,15 @@
 
 (defn page []
   [:div.columns.is-multiline.is-centered
-   [col 4 (info-box "CURRENT NET WORTH" (format-number 100000))]
-   [col 4 (info-box "EMERGENCY FUND MONTHS" 1.23)]
-   [col 4 (info-box "MONTHLY PERFORMANCE" "14 %")]
-   [col 6 (chart-box "SALARY" (chart-component "salary" line-chart))]
-   [col 6 (chart-box "NET WORTH" (chart-component "net-worth" line-chart))]])
+   [col 12 (chart-box "SALARY OVER TIME" (chart-component "salary-over-time" line-chart))]])
+
+(defn sample-page []
+  [:div.columns.is-multiline.is-centered
+   [col-sample 4 (info-box "CURRENT NET WORTH" (format-number 100000))]
+   [col-sample 4 (info-box "EMERGENCY FUND MONTHS" 1.23)]
+   [col-sample 4 (info-box "MONTHLY PERFORMANCE" "14 %")]
+   [col-sample 6 (chart-box "SALARY" (chart-component "salary" line-chart))]
+   [col-sample 6 (chart-box "NET WORTH" (chart-component "net-worth" line-chart))]])
 
 (defn app [state]
   [:div
@@ -195,7 +204,7 @@
    (when-not (= :hidden (get-in @state [:modal :key]))
      [modal state])
    [:div.section.has-background-light
-    [page]]])
+    (if (nil? (get-in @state [:data])) [sample-page] [page])]])
 
 (defmethod render-page :loading [state]
   [:div "loading"])
