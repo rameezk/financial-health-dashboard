@@ -1,6 +1,8 @@
 (ns financial-health-dashboard.domain
   (:require
    [clojure.spec.alpha :as s]
+   [cljs-time.core :as time]
+   [cljs-time.coerce :as time.coerce]
    [clojure.string :as string]))
 
 
@@ -27,7 +29,32 @@
                      (map (juxt first second))
                      (into {})))
 
+(defn type-of? [data-type m]
+  (= data-type (:data-type m)))
 
-(defn all-your-bucks [coll]
-  (let [salaries coll]
+
+(defn type-of-f? [data-type] (partial type-of? data-type))
+
+
+(defn types-of-f? [& types]
+  (fn [m] (->> types
+               (map #(type-of? % m))
+               (filter true?)
+               not-empty)))
+
+
+(defn timestamped [{:keys [year month day] :as m}]
+  (let [date (js/Date. year (dec month) day)] ;;js months start at 0
+    (assoc m
+           :date date
+           :cljs-date (time/date-time year month day)
+           :timestamp (.getTime date))))
+
+(defn salaries [data]
+  (->> data (filter (type-of-f? :salary))
+       (map timestamped)
+      (sort-by :timestamp)))
+
+(defn all-your-bucks [data]
+  (let [salaries (salaries data)]
     {:salaries salaries}))

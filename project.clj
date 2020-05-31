@@ -9,6 +9,7 @@
   :dependencies [[org.clojure/clojure "1.9.0"]
                  [org.clojure/clojurescript "1.10.520"]
                  [testdouble/clojurescript.csv "0.4.5"]
+                 [com.andrewmcveigh/cljs-time "0.5.2"]
                  [reagent "0.8.1"]]
 
   :source-paths ["src"]
