@@ -117,8 +117,8 @@
   (let [context (.getContext (.getElementById js/document id) "2d")
         chart-data {:type "line"
                     :options {:legend {:labels {:fontColor "white"}}
-                              :scales {:xAxes [{:ticks {:fontColor "white"}}]
-                                       :yAxes [{:ticks {:fontColor "white"}}]}}
+                              :scales {:xAxes [{:ticks {:fontColor "white" :maxTicksLimit 12}}]
+                                       :yAxes [{:ticks {:fontColor "white" :beginAtZero true}}]}}
                     :data {:labels cdx
                            :datasets [{:data cdy
                                        :label "Salary"
