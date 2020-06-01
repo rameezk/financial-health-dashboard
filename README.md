@@ -12,7 +12,8 @@ Assess your financial health with a high level dashboard.
 
 ### Currently Working On
 - [x] Getting the development pipeline up and running
-- [ ] Chart to view your salary over time
+- [x] Chart to view your salary over time
+- [ ] View your net worth (assets - liabilities)
 
 ### Future work
 - [ ] Track TFSA contributions
