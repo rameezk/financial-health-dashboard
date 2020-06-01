@@ -10,12 +10,12 @@ Live version can be accessed [here](https://financialhealth.app) 👈🏽.
 
 Assess your financial health with a high level dashboard.
 
-### Currently Working On
-- [x] Getting the development pipeline up and running
+### Features
 - [x] Chart to view your salary over time
-- [ ] View your net worth (assets - liabilities)
+- [ ] View your current net worth
 
 ### Future work
+- [ ] View your net worth over time
 - [ ] Track TFSA contributions
 
 ## Development
