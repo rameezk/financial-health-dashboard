@@ -3,6 +3,7 @@
    [financial-health-dashboard.changelog :as changelog]
    [financial-health-dashboard.parse :as parse]
    [financial-health-dashboard.domain :as domain]
+   [financial-health-dashboard.localstorage :as localstorage]
    [cljs-time.core :as time]
    [cljs-time.format :as tf]
    [goog.dom :as gdom]
@@ -38,79 +39,89 @@
   (swap! state #(assoc-in % [:modal :data] data)))
 
 (defn set-app-data [data]
+  (localstorage/set-item! "data" data)
   (swap! state #(assoc % :data data)))
 
+(defn get-data-from-localstorage []
+  (println "Loading data from local storage")
+  (let [
+        data (localstorage/get-item "data")
+        ]
+    (println "data: " data)
+    (set-app-data data)))
+
+
 (defmethod render-modal :upload [{:keys [modal delimiter]}]
-  [:div.has-text-dark
-   [:h1.heading.has-text-centered "Choose file"]
-   [:form
-    [:div.file.is-centered
-     [:label.file-label
-      [:input.file-input {:type      "file" :name "storage"
-                          :on-change (fn [e]
-                                       (let [file   (aget (.. e -target -files) 0)
-                                             reader (js/FileReader.)]
-                                         (set! (.-onload reader)
-                                               #(set-file-data (.. % -target -result)))
-                                         (.readAsText reader file)))}]
-      [:span.file-cta
-       [:span.file-icon
-        [:i.fa.fa-upload]]
-       [:span.file-label "Upload"]]]]]
-   (when-let [content (get-in @state [:modal :data])]
-     (let [result
-           (->> content
-                (parse/parse parse/pipe))
-           errors
-           (->> result
-                (filter (comp not :valid?))
-                (map (juxt :i :error)))]
-       (if-not (empty? errors)
-         [:div.content
-          [:hr]
-          [:p.heading.has-text-centered.has-text-danger "Oops. You have some errors"]
-          [:ul
-           (map-indexed
-             (fn [i [row e]]
-               [:li {:key i} "row: " row ": " e])
-             errors)]]
-         [:div.content
-          [:hr]
-          [:p.heading.has-text-centered.has-text-primary "Awesome! No errors!"]
-          [:div.buttons.is-centered
-           [:button.button.is-primary
-            {:on-click (fn [_] (set-app-data (-> result
-                                                parse/as-domain-values
-                                                domain/all-your-bucks))
-                         (hide-modal)
-                         (page :loading)
-                         (js/setTimeout #(page :main)))}
-            "GO"]]])))])
+[:div.has-text-dark
+ [:h1.heading.has-text-centered "Choose file"]
+ [:form
+  [:div.file.is-centered
+   [:label.file-label
+    [:input.file-input {:type      "file" :name "storage"
+                        :on-change (fn [e]
+                                     (let [file   (aget (.. e -target -files) 0)
+                                           reader (js/FileReader.)]
+                                       (set! (.-onload reader)
+                                             #(set-file-data (.. % -target -result)))
+                                       (.readAsText reader file)))}]
+    [:span.file-cta
+     [:span.file-icon
+      [:i.fa.fa-upload]]
+     [:span.file-label "Upload"]]]]]
+ (when-let [content (get-in @state [:modal :data])]
+   (let [result
+         (->> content
+              (parse/parse parse/pipe))
+         errors
+         (->> result
+              (filter (comp not :valid?))
+              (map (juxt :i :error)))]
+     (if-not (empty? errors)
+       [:div.content
+        [:hr]
+        [:p.heading.has-text-centered.has-text-danger "Oops. You have some errors"]
+        [:ul
+         (map-indexed
+           (fn [i [row e]]
+             [:li {:key i} "row: " row ": " e])
+           errors)]]
+       [:div.content
+        [:hr]
+        [:p.heading.has-text-centered.has-text-primary "Awesome! No errors!"]
+        [:div.buttons.is-centered
+         [:button.button.is-primary
+          {:on-click (fn [_] (set-app-data (-> result
+                                              parse/as-domain-values
+                                              domain/all-your-bucks))
+                       (hide-modal)
+                       (page :loading)
+                       (js/setTimeout #(page :main)))}
+          "GO"]]])))])
 
 (defmethod render-modal :help [{:keys [modal delimiter]}]
-  (println "help modal"))
+(println "help modal"))
 
 (defmethod render-modal :save [{:keys [modal delimiter]}]
-  (println "save modal"))
+(println "save modal"))
 
 (defmethod render-modal :changelog []
-  (changelog/render))
+(changelog/render))
 
 (defn bar-chart
-  [id]
-  (let [context    (.getContext (.getElementById js/document id) "2d")
-        chart-data {:type    "bar"
-                    :options {:legend {:labels {:fontColor "white"}}
-                              :scales {:xAxes [{:ticks {:fontColor "white"}}]
-                                       :yAxes [{:ticks {:fontColor "white"}}]}}
-                    :data    {:labels   ["2012" "2013" "2014" "2015" "2016"]
-                              :datasets [{:data            [5 10 15 20 25]
-                                          :label           "Rev in MM"
-                                          :backgroundColor "#90EE90"}
-                                         {:data            [3 6 9 12 15]
-                                          :label           "Cost in MM"
-                                          :backgroundColor "#F08080"}]}}]
-    (js/Chart. context (clj->js chart-data))))
+[id]
+(let [context    (.getContext (.getElementById js/document id) "2d")
+      chart-data {:type    "bar"
+                  :options {:legend {:labels {:fontColor "white"}}
+                            :scales {:xAxes [{:ticks {:fontColor "white"}}]
+                                     :yAxes [{:ticks {:fontColor "white"}}]}}
+                  :data    {:labels   ["2012" "2013" "2014" "2015" "2016"]
+                            :datasets [{:data            [5 10 15 20 25]
+                                        :label           "Rev in MM"
+                                        :backgroundColor "#90EE90"}
+                                       {:data            [3 6 9 12 15]
+                                        :label           "Cost in MM"
+                                        :backgroundColor "#F08080"}]}}]
+  (js/Chart. context (clj->js chart-data))))
 
 (defn line-chart
   [id cdx cdy]
@@ -209,7 +220,7 @@
    [col-sample 4 (info-box "EMERGENCY FUND MONTHS" 1.23)]
    [col-sample 4 (info-box "MONTHLY PERFORMANCE" "14 %")]])
 
-(defn app [state]
+(defn app []
   [:div
    [nav]
    (when-not (= :hidden (get-in @state [:modal :key]))
@@ -225,7 +236,7 @@
   (gdom/getElement "app"))
 
 (defn mount [el]
-  (reagent/render-component [app state] el))
+  (reagent/render-component [app] el))
 
 (defn mount-app-element []
   (when-let [el (get-app-element)]
