@@ -16,12 +16,20 @@
    ["year-goal" this-year 13]
    ["year-goal" this-year 11]])
 
+(def monthly-expense
+  [["monthly-expense" this-year 1 20000]])
+
+(def emergency-fund
+  [["emergency-fund" this-year 5 60000]])
+
 (def example-comment
   [["comment" "some random comment"]])
 
 (def data-piped
   (->> [date-of-birth
-        year-goals]
+        year-goals
+        monthly-expense
+        emergency-fund]
        (reduce into)
        (map #(->> % (map str) (str/join "|")))
        (str/join "\n")))
