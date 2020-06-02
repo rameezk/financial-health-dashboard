@@ -57,12 +57,17 @@
 
 (defn parse
   [seperator data]
-  (->> (csv/read-csv data :separator seperator) 
+  (->> (csv/read-csv data :separator seperator)
        (filter not-empty-row?)
        (map-indexed (fn [i r]
                       (-> r parse-row validate-row (assoc :i (inc i)))))))
 
 
+(defn- as-domain-value [{:keys [specs key data]}]
+  (-> (zipmap
+        (map (comp keyword name) specs)
+        (take (count specs) data))
+      (assoc :data-type key)))
 
 (defn as-domain-values
   "Converts a collection of parsed and valid data rows into domain data."
@@ -71,8 +76,3 @@
        (filter :valid?)
        (map as-domain-value)))
 
-(defn- as-domain-value [{:keys [specs key data]}]
-  (-> (zipmap
-       (map (comp keyword name) specs)
-       (take (count specs) data))
-      (assoc :data-type key)))

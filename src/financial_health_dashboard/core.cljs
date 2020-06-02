@@ -16,10 +16,10 @@
 (defn format-number [number] (.format number-formatter number))
 
 ;; define your app data so that it doesn't get over-written on reload
-(defonce state (reagent/atom {:page :loading
+(defonce state (reagent/atom {:page      :loading
                               :delimiter parse/pipe
-                              :modal {:key :hidden :data nil}
-                              :data nil}))
+                              :modal     {:key :hidden :data nil}
+                              :data      nil}))
 
 (defmulti render-page :page)
 
@@ -46,9 +46,9 @@
    [:form
     [:div.file.is-centered
      [:label.file-label
-      [:input.file-input {:type "file" :name "storage"
+      [:input.file-input {:type      "file" :name "storage"
                           :on-change (fn [e]
-                                       (let [file (aget (.. e -target -files) 0)
+                                       (let [file   (aget (.. e -target -files) 0)
                                              reader (js/FileReader.)]
                                          (set! (.-onload reader)
                                                #(set-file-data (.. % -target -result)))
@@ -71,17 +71,17 @@
           [:p.heading.has-text-centered.has-text-danger "Oops. You have some errors"]
           [:ul
            (map-indexed
-            (fn [i [row e]]
-              [:li {:key i} "row: " row ": " e])
-            errors)]]
+             (fn [i [row e]]
+               [:li {:key i} "row: " row ": " e])
+             errors)]]
          [:div.content
           [:hr]
           [:p.heading.has-text-centered.has-text-primary "Awesome! No errors!"]
           [:div.buttons.is-centered
            [:button.button.is-primary
             {:on-click (fn [_] (set-app-data (-> result
-                                                 parse/as-domain-values
-                                                 domain/all-your-bucks))
+                                                parse/as-domain-values
+                                                domain/all-your-bucks))
                          (hide-modal)
                          (page :loading)
                          (js/setTimeout #(page :main)))}
@@ -98,46 +98,46 @@
 
 (defn bar-chart
   [id]
-  (let [context (.getContext (.getElementById js/document id) "2d")
-        chart-data {:type "bar"
+  (let [context    (.getContext (.getElementById js/document id) "2d")
+        chart-data {:type    "bar"
                     :options {:legend {:labels {:fontColor "white"}}
                               :scales {:xAxes [{:ticks {:fontColor "white"}}]
                                        :yAxes [{:ticks {:fontColor "white"}}]}}
-                    :data {:labels ["2012" "2013" "2014" "2015" "2016"]
-                           :datasets [{:data [5 10 15 20 25]
-                                       :label "Rev in MM"
-                                       :backgroundColor "#90EE90"}
-                                      {:data [3 6 9 12 15]
-                                       :label "Cost in MM"
-                                       :backgroundColor "#F08080"}]}}]
+                    :data    {:labels   ["2012" "2013" "2014" "2015" "2016"]
+                              :datasets [{:data            [5 10 15 20 25]
+                                          :label           "Rev in MM"
+                                          :backgroundColor "#90EE90"}
+                                         {:data            [3 6 9 12 15]
+                                          :label           "Cost in MM"
+                                          :backgroundColor "#F08080"}]}}]
     (js/Chart. context (clj->js chart-data))))
 
 (defn line-chart
   [id cdx cdy]
-  (let [context (.getContext (.getElementById js/document id) "2d")
-        chart-data {:type "line"
+  (let [context    (.getContext (.getElementById js/document id) "2d")
+        chart-data {:type    "line"
                     :options {:legend {:labels {:fontColor "white"}}
                               :scales {:xAxes [{:ticks {:fontColor "white" :maxTicksLimit 12}}]
                                        :yAxes [{:ticks {:fontColor "white" :beginAtZero true}}]}}
-                    :data {:labels cdx
-                           :datasets [{:data cdy
-                                       :label "Salary"
-                                       :backgroundColor "#90EE90"}]}}]
+                    :data    {:labels   cdx
+                              :datasets [{:data            cdy
+                                          :label           "Salary"
+                                          :backgroundColor "#90EE90"}]}}]
 
     (js/Chart. context (clj->js chart-data))))
 
 (defn draw-chart [id chart x y]
   (reagent/create-class
-   {:component-did-mount #(chart id x y)
-    :display-name "chart"
-    :reagent-render (fn [] [:canvas {:id id :height "100vw"}])}))
+    {:component-did-mount #(chart id x y)
+     :display-name        "chart"
+     :reagent-render      (fn [] [:canvas {:id id :height "100vw"}])}))
 
 (defn nav []
   [:div
    [:nav.navbar.is-dark
     [:div.navbar-brand
      [:a.navbar-item {:href "#"} "💰 Dashboard (alpha)"]
-     [:a.navbar-burger.burger {:id "nav-menu-burger"
+     [:a.navbar-burger.burger {:id       "nav-menu-burger"
                                :on-click (fn []
                                            (do (gc/toggle (js/document.getElementById "nav-menu") "is-active")
                                                (gc/toggle (js/document.getElementById "nav-menu-burger") "is-active")))}
@@ -189,15 +189,11 @@
   (tf/formatter "MMM-yy"))
 
 (defn salary-over-time-chart [{:keys [salaries]}]
-  (let [
-        x (->> salaries (map :cljs-date) (map #(tf/unparse custom-month-year %)))
-        y (->> salaries (map :amount))
-        ]
-    (chart-box "SALARY OVER TIME" (
-                                   draw-chart
-                                   "salary-over-time"
-                                   line-chart x y))
-    ))
+  (let [x (->> salaries (map :cljs-date) (map #(tf/unparse custom-month-year %)))
+        y (->> salaries (map :amount))]
+    (chart-box "SALARY OVER TIME" (draw-chart
+                                    "salary-over-time"
+                                    line-chart x y))))
 
 (defn page [data]
   [:div.columns.is-multiline.is-centered
@@ -218,7 +214,7 @@
      [modal state])
    [:div.section.has-background-light
     (let [data (get-in @state [:data])]
-         (if (nil? data) [sample-page] [page data]))]])
+      (if (nil? data) [sample-page] [page data]))]])
 
 (defmethod render-page :loading [state]
   [:div "loading"])

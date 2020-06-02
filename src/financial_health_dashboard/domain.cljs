@@ -23,7 +23,9 @@
     "A row used for any kind of comment"]
    ["salary"
     [:d/year :d/month :d/amount]
-    "Salary"]])
+    "Salary"]
+   ["year-goal"
+    [:d/year :d/amount]]])
 
 (def data-types (->> data-types-config
                      (map (juxt first second))
@@ -53,7 +55,17 @@
 (defn salaries [data]
   (->> data (filter (type-of-f? :salary))
        (map timestamped)
-      (sort-by :timestamp)))
+       (sort-by :timestamp)))
+
+;; DATA EXTRACTORS
+;; (defn year-goals [data]
+;;   (->> (filter (type-of-f? :year-goal) data)
+;;        (map (fn [{:keys [percentage] :as m}]
+;;               (assoc m :name (str percentage "%"))))
+;;        (group-by :year)))
+
+(defn year-goals [data]
+  (->> (filter (type-of-f? :year-goal) data)))
 
 (defn all-your-bucks [data]
   (let [salaries (salaries data)]
