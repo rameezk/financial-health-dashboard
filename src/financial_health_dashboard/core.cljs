@@ -195,17 +195,19 @@
                                     "salary-over-time"
                                     line-chart x y))))
 
+(defn emergency-fund-months-info-box [{:keys [emergency-fund-months]}]
+  (info-box "EMERGENCY FUND MONTHS" (format-number emergency-fund-months)))
+
 (defn page [data]
   [:div.columns.is-multiline.is-centered
+   [col 12 (emergency-fund-months-info-box data)]
    [col 12 (salary-over-time-chart data)]])
 
 (defn sample-page []
   [:div.columns.is-multiline.is-centered
    [col-sample 4 (info-box "CURRENT NET WORTH" (format-number 100000))]
    [col-sample 4 (info-box "EMERGENCY FUND MONTHS" 1.23)]
-   [col-sample 4 (info-box "MONTHLY PERFORMANCE" "14 %")]
-   [col-sample 6 (chart-box "SALARY" (draw-chart "salary" line-chart))]
-   [col-sample 6 (chart-box "NET WORTH" (draw-chart "net-worth" line-chart))]])
+   [col-sample 4 (info-box "MONTHLY PERFORMANCE" "14 %")]])
 
 (defn app [state]
   [:div
