@@ -3,7 +3,9 @@
    [financial-health-dashboard.changelog :as changelog]
    [financial-health-dashboard.parse :as parse]
    [financial-health-dashboard.domain :as domain]
+   [financial-health-dashboard.localstorage :as localstorage]
    [cljs-time.core :as time]
+   [clojure.edn :as edn]
    [cljs-time.format :as tf]
    [goog.dom :as gdom]
    [goog.dom.classlist :as gc]
@@ -23,6 +25,8 @@
 
 (defmulti render-page :page)
 
+(defn page [page] (swap! state #(assoc % :page page)))
+
 (defmulti render-modal (fn [state] (get-in @state [:modal :key])))
 
 (defn show-modal [key data]
@@ -31,14 +35,27 @@
 (defn hide-modal []
   (swap! state #(assoc % :modal {:key :hidden})))
 
-(defmethod render-page :main [{:keys [data model]}]
-  [:div "main"])
-
 (defn set-file-data [data]
   (swap! state #(assoc-in % [:modal :data] data)))
 
 (defn set-app-data [data]
   (swap! state #(assoc % :data data)))
+
+(defn save-data-to-localstorage [data]
+  (localstorage/set-item! "data" (prn-str data)))
+
+(defn build-app-data-from-uploaded-data [parsed-data]
+  (save-data-to-localstorage parsed-data)
+  (set-app-data (-> parsed-data parse/as-domain-values domain/all-your-bucks)))
+
+(defn build-app-data-from-localstorage-data [localstorage-data]
+  (when-not (nil? localstorage-data)
+    (set-app-data (-> localstorage-data
+                      parse/as-domain-values
+                      domain/all-your-bucks))))
+
+(defn get-data-from-localstorage []
+  (or (->> (localstorage/get-item "data") (edn/read-string)) nil))
 
 (defmethod render-modal :upload [{:keys [modal delimiter]}]
   [:div.has-text-dark
@@ -79,9 +96,7 @@
           [:p.heading.has-text-centered.has-text-primary "Awesome! No errors!"]
           [:div.buttons.is-centered
            [:button.button.is-primary
-            {:on-click (fn [_] (set-app-data (-> result
-                                                parse/as-domain-values
-                                                domain/all-your-bucks))
+            {:on-click (fn [_] (build-app-data-from-uploaded-data result)
                          (hide-modal)
                          (page :loading)
                          (js/setTimeout #(page :main)))}
@@ -198,7 +213,7 @@
 (defn emergency-fund-months-info-box [{:keys [emergency-fund-months]}]
   (info-box "EMERGENCY FUND MONTHS" (format-number emergency-fund-months)))
 
-(defn page [data]
+(defmethod render-page :main [{:keys [data modal]}]
   [:div.columns.is-multiline.is-centered
    [col 12 (emergency-fund-months-info-box data)]
    [col 12 (salary-over-time-chart data)]])
@@ -209,14 +224,16 @@
    [col-sample 4 (info-box "EMERGENCY FUND MONTHS" 1.23)]
    [col-sample 4 (info-box "MONTHLY PERFORMANCE" "14 %")]])
 
-(defn app [state]
+(defn app []
   [:div
    [nav]
    (when-not (= :hidden (get-in @state [:modal :key]))
      [modal state])
    [:div.section.has-background-light
-    (let [data (get-in @state [:data])]
-      (if (nil? data) [sample-page] [page data]))]])
+    (render-page @state)]])
+
+(defn sleep [f ms]
+  (js/setTimeout f ms))
 
 (defmethod render-page :loading [state]
   [:div "loading"])
@@ -225,11 +242,15 @@
   (gdom/getElement "app"))
 
 (defn mount [el]
-  (reagent/render-component [app state] el))
+  (reagent/render-component [app] el))
 
 (defn mount-app-element []
   (when-let [el (get-app-element)]
     (mount el)))
+
+(when (= :loading (:page @state))
+  (build-app-data-from-localstorage-data (get-data-from-localstorage))
+  (js/setTimeout #(page :main)))
 
 ;; conditionally start your application based on the presence of an "app" element
 ;; this is particularly helpful for testing this ns without launching the app
