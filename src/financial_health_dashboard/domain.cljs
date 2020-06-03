@@ -78,8 +78,13 @@
   (if (> (count emergency-fund) 1)
     (let [latest-monthly-expense      (get (last monthly-expense) :amount)
           latest-em-fund-balance      (get (last emergency-fund) :amount)
-          second-last-em-fund-balance (get (-> emergency-fund (reverse) (nth 1 nil)) :amount)]
-      (/ (- latest-em-fund-balance second-last-em-fund-balance) latest-monthly-expense))
+          second-last-em-fund-balance (get (-> emergency-fund (reverse) (nth 1 nil)) :amount)
+          delta                       (/ (- latest-em-fund-balance second-last-em-fund-balance) latest-monthly-expense)]
+      (if (= delta 0.0)
+        {:direction :same :delta delta}
+        (if (< delta 0)
+          {:direction :down :delta (* -1 delta)}
+          {:direction :up :delta delta})))
     nil))
 
 (defn all-your-bucks [data]

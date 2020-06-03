@@ -57,6 +57,7 @@
 (defn get-data-from-localstorage []
   (or (->> (localstorage/get-item "data") (edn/read-string)) nil))
 
+
 (defmethod render-modal :upload [{:keys [modal delimiter]}]
   [:div.has-text-dark
    [:h1.heading.has-text-centered "Choose file"]
@@ -211,35 +212,37 @@
 (tf/formatter "MMM-yy"))
 
 (defn salary-over-time-chart [{:keys [salaries]}]
-(let [x (->> salaries (map :cljs-date) (map #(tf/unparse custom-month-year %)))
-      y (->> salaries (map :amount))]
-  (chart-box "SALARY OVER TIME" (draw-chart
-                                  "salary-over-time"
-                                  line-chart x y))))
+  (let [x (->> salaries (map :cljs-date) (map #(tf/unparse custom-month-year %)))
+        y (->> salaries (map :amount))]
+    (chart-box "SALARY OVER TIME" (draw-chart
+                                    "salary-over-time"
+                                    line-chart x y))))
 
 (defn emergency-fund-months-info-box [{:keys [emergency-fund-months emergency-fund-months-change]}]
-(info-box "EMERGENCY FUND MONTHS"
-          (format-number emergency-fund-months)
-          (format-number emergency-fund-months-change)))
+  [:div.has-text-centered.info-box
+   [:p.heading "EMERGENCY FUND MONTHS"]
+   [:p.title {:class "has-text-light"} (format-number emergency-fund-months)]
+   (if (= (get emergency-fund-months-change :direction) :up)
+     [:p.subtitle.is-size-7.has-text-light.has-text-success
+      [:i.fa.fa-arrow-up] (str " " (format-number ( get emergency-fund-months-change :delta )))]
+     (if (= (get emergency-fund-months-change :direction) :down)
+       [:p.subtitle.is-size-7.has-text-light.has-text-danger
+        [:i.fa.fa-arrow-down] (str " " (format-number ( get emergency-fund-months-change :delta )))]
+       [:p.subtitle.is-size-7.has-text-light.has-text-warning
+        [:i.fa.fa-arrow-right] (str " " (format-number ( get emergency-fund-months-change :delta )))]))])
 
 (defmethod render-page :main [{:keys [data modal]}]
-[:div.columns.is-multiline.is-centered
- [col 12 (emergency-fund-months-info-box data)]
- [col 12 (salary-over-time-chart data)]])
-
-(defn sample-page []
-[:div.columns.is-multiline.is-centered
- [col-sample 4 (info-box "CURRENT NET WORTH" (format-number 100000))]
- [col-sample 4 (info-box "EMERGENCY FUND MONTHS" 1.23)]
- [col-sample 4 (info-box "MONTHLY PERFORMANCE" "14 %")]])
+  [:div.columns.is-multiline.is-centered
+   [col 2 (emergency-fund-months-info-box data)]
+   [col 12 (salary-over-time-chart data)]])
 
 (defn app []
-[:div
- [nav]
- (when-not (= :hidden (get-in @state [:modal :key]))
-   [modal state])
- [:div.section.has-background-light
-  (render-page @state)]])
+  [:div
+   [nav]
+   (when-not (= :hidden (get-in @state [:modal :key]))
+     [modal state])
+   [:div.section.has-background-light
+    (render-page @state)]])
 
 (defn sleep [f ms]
 (js/setTimeout f ms))
@@ -258,8 +261,8 @@
   (mount el)))
 
 (when (= :loading (:page @state))
-(build-app-data-from-localstorage-data (get-data-from-localstorage))
-(js/setTimeout #(page :main)))
+  (build-app-data-from-localstorage-data (get-data-from-localstorage))
+  (js/setTimeout #(page :main)))
 
 ;; conditionally start your application based on the presence of an "app" element
 ;; this is particularly helpful for testing this ns without launching the app
@@ -267,8 +270,8 @@
 
 ;; specify reload hook with ^;after-load metadata
 (defn ^:after-load on-reload []
-(mount-app-element)
-;; optionally touch your app-state to force rerendering depending on
-;; your application
-;; (swap! app-state update-in [:__figwheel_counter] inc)
+  (mount-app-element)
+  ;; optionally touch your app-state to force rerendering depending on
+  ;; your application
+  ;; (swap! app-state update-in [:__figwheel_counter] inc)
   )
