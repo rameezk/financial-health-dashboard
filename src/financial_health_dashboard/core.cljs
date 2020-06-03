@@ -150,6 +150,38 @@
 
     (js/Chart. context (clj->js chart-data))))
 
+(defn tfsa-chart-1
+  [id]
+  (let [context    (.getContext (.getElementById js/document id) "2d")
+        chart-data {:type    "horizontalBar"
+                    :options {:legend {:labels {:fontColor "white"}}
+                              :scales {:xAxes [{:ticks {:fontColor "white" :beginAtZero true}}]
+                                       :yAxes [{:ticks {:fontColor "white"}}]}}
+                    :data    {:labels   ["2015" "2016" "2017" "2018" "2019" "2020"]
+                              :datasets [{:data            [30000 30000 33000 33000 33000 36000]
+                                          :label           "Yearly Limit"
+                                          :backgroundColor "#EA3C53"}
+                                         {:data            [0 0 0 0 17000 24000]
+                                          :label           "Yearly Contribution"
+                                          :backgroundColor "#90EE90"}]}}]
+    (js/Chart. context (clj->js chart-data))))
+
+(defn tfsa-chart-2
+  [id]
+  (let [context    (.getContext (.getElementById js/document id) "2d")
+        chart-data {:type    "horizontalBar"
+                    :options {:legend {:labels {:fontColor "white"}}
+                              :scales {:xAxes [{:ticks {:fontColor "white" :beginAtZero true}}]
+                                       :yAxes [{:ticks {:fontColor "white"}}]}}
+                    :data    {
+                              :datasets [{:data            [500000]
+                                          :label           "Limit"
+                                          :backgroundColor "#EA3C53"}
+                                         {:data            [(+ 17000 24000)]
+                                          :label           "Contribution"
+                                          :backgroundColor "#90EE90"}]}}]
+    (js/Chart. context (clj->js chart-data))))
+
 (defn draw-chart [id chart x y]
   (reagent/create-class
     {:component-did-mount #(chart id x y)
@@ -239,6 +271,18 @@
        [:p.subtitle.is-size-7.has-text-light.has-text-warning
         [:i.fa.fa-arrow-right] (str " " (format-number ( get emergency-fund-months-change :delta )))]))])
 
+(defn tfsa-yearly-contributions-chart []
+  (chart-box "TFSA YEARLY CONTRIBUTIONS"
+             (draw-chart
+               "tfsa-yearly-contributions"
+               tfsa-chart-1 nil nil)))
+
+(defn tfsa-lifetime-contribution-chart []
+  (chart-box "TFSA LIFETIME CONTRIBUTION"
+             (draw-chart
+               "tfsa-lifetime-contribution"
+               tfsa-chart-2 nil nil)))
+
 (defmethod render-page :main [{:keys [data modal]}]
   (let [col
         (if (= (->
@@ -251,7 +295,9 @@
           col-real-data)]
     [:div.columns.is-multiline.is-centered
      [col 12 (emergency-fund-months-info-box data)]
-     [col 12 (salary-over-time-chart data)]]
+     [col 12 (salary-over-time-chart data)]
+     [col 6 (tfsa-yearly-contributions-chart)]
+     [col 6 (tfsa-lifetime-contribution-chart)]]
     )
   )
 
