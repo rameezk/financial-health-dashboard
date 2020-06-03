@@ -173,7 +173,7 @@
                     :options {:legend {:labels {:fontColor "white"}}
                               :scales {:xAxes [{:ticks {:fontColor "white" :beginAtZero true}}]
                                        :yAxes [{:ticks {:fontColor "white"}}]}}
-                    :data    {
+                    :data    {:labels   ["Lifetime"]
                               :datasets [{:data            [500000]
                                           :label           "Limit"
                                           :backgroundColor "#EA3C53"}
