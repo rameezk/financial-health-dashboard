@@ -189,10 +189,11 @@
     [:span.tag.is-warning "sample"]
     children]])
 
-(defn info-box [title info & [class]]
+(defn info-box [title info change & [class]]
   [:div.has-text-centered.info-box
    [:p.heading title]
-   [:p.title {:class (or class "has-text-light")} info]])
+   [:p.title {:class (or class "has-text-light")} info]
+   [:p.subtitle.is-size-7.has-text-light (str "change: " change)]])
 
 (defn chart-box [title content & [class]]
   [:div.has-text-centered.info-box
@@ -210,8 +211,10 @@
                                     "salary-over-time"
                                     line-chart x y))))
 
-(defn emergency-fund-months-info-box [{:keys [emergency-fund-months]}]
-  (info-box "EMERGENCY FUND MONTHS" (format-number emergency-fund-months)))
+(defn emergency-fund-months-info-box [{:keys [emergency-fund-months emergency-fund-months-change]}]
+  (info-box "EMERGENCY FUND MONTHS"
+            (format-number emergency-fund-months)
+            (format-number emergency-fund-months-change)))
 
 (defmethod render-page :main [{:keys [data modal]}]
   [:div.columns.is-multiline.is-centered
