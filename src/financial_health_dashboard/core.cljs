@@ -4,6 +4,7 @@
    [financial-health-dashboard.parse :as parse]
    [financial-health-dashboard.domain :as domain]
    [financial-health-dashboard.localstorage :as localstorage]
+   [financial-health-dashboard.example :as example]
    [cljs-time.core :as time]
    [clojure.edn :as edn]
    [cljs-time.format :as tf]
@@ -56,6 +57,9 @@
 
 (defn get-data-from-localstorage []
   (or (->> (localstorage/get-item "data") (edn/read-string)) nil))
+
+(defn get-sample-data []
+  (parse/parse parse/pipe example/data-piped))
 
 
 (defmethod render-modal :upload [{:keys [modal delimiter]}]
@@ -179,15 +183,16 @@
      (render-modal model-state)]
     [:button.modal-close.is-large {:on-click hide-modal}]]])
 
-(defn col [size & children]
+(defn col-real-data [size & children]
+  (println "rendering using this")
   [:div.column {:class (str "is-" size)}
    [:div.box.is-shadowless.has-text-grey-lighter
     children]])
 
-(defn col-sample [size & children]
+(defn col-sample-data [size & children]
   [:div.column {:class (str "is-" size)}
    [:div.box.is-shadowless.has-text-grey-lighter
-    [:span.tag.is-warning "sample"]
+    [:span.tag.is-warning.is-size-7.sample-tag "sample"]
     children]])
 
 (defn info-box [title info change & [class]]
@@ -232,17 +237,28 @@
         [:i.fa.fa-arrow-right] (str " " (format-number ( get emergency-fund-months-change :delta )))]))])
 
 (defmethod render-page :main [{:keys [data modal]}]
-  [:div.columns.is-multiline.is-centered
-   [col 2 (emergency-fund-months-info-box data)]
-   [col 12 (salary-over-time-chart data)]])
+  (let [col
+        (if (= (->
+                 data
+                 (get :sample)
+                 (first)
+                 (get :is-sample))
+               "yes")
+          col-sample-data
+          col-real-data)]
+    [:div.columns.is-multiline.is-centered
+     [col 2 (emergency-fund-months-info-box data)]
+     [col 12 (salary-over-time-chart data)]]
+    )
+  )
 
 (defn app []
-  [:div
-   [nav]
-   (when-not (= :hidden (get-in @state [:modal :key]))
-     [modal state])
-   [:div.section.has-background-light
-    (render-page @state)]])
+[:div
+ [nav]
+ (when-not (= :hidden (get-in @state [:modal :key]))
+   [modal state])
+ [:div.section.has-background-light
+  (render-page @state)]])
 
 (defn sleep [f ms]
 (js/setTimeout f ms))
@@ -261,8 +277,10 @@
   (mount el)))
 
 (when (= :loading (:page @state))
-  (build-app-data-from-localstorage-data (get-data-from-localstorage))
-  (js/setTimeout #(page :main)))
+(build-app-data-from-localstorage-data (or
+                                         (get-data-from-localstorage)
+                                         (get-sample-data)))
+(js/setTimeout #(page :main)))
 
 ;; conditionally start your application based on the presence of an "app" element
 ;; this is particularly helpful for testing this ns without launching the app
@@ -270,8 +288,8 @@
 
 ;; specify reload hook with ^;after-load metadata
 (defn ^:after-load on-reload []
-  (mount-app-element)
-  ;; optionally touch your app-state to force rerendering depending on
-  ;; your application
-  ;; (swap! app-state update-in [:__figwheel_counter] inc)
-  )
+(mount-app-element)
+;; optionally touch your app-state to force rerendering depending on
+;; your application
+;; (swap! app-state update-in [:__figwheel_counter] inc)
+)

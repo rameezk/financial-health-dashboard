@@ -23,14 +23,18 @@
   [["emergency-fund" this-year 4 60000]])
 
 (def example-comment
-[["comment" "some random comment"]])
+  [["comment" "some random comment"]])
+
+(def sample
+  [["sample" "yes"]])
 
 (def data-piped
-(->> [date-of-birth
-      year-goals
-      monthly-expense
-      emergency-fund]
-     (reduce into)
-     (map #(->> % (map str) (str/join "|")))
-     (str/join "\n")))
+  (->> [sample
+        date-of-birth
+        year-goals
+        monthly-expense
+        emergency-fund]
+       (reduce into)
+       (map #(->> % (map str) (str/join "|")))
+       (str/join "\n")))
 

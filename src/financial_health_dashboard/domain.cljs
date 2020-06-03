@@ -7,18 +7,24 @@
 
 (defn year? [n] (boolean (and (number? n) (>= n 1900) (> 3000 n))))
 (defn month? [n] (boolean (and (number? n) (>= n 1) (> 13 n))))
+(def yes "yes")
+(def no "no")
 
 ;; SPECS
 (s/def :d/year year?)
 (s/def :d/month month?)
 (s/def :d/amount number?)
+(s/def :d/is-sample #(contains? #{yes no} %))
 
 
 ;; DATA TYPES
 
 
 (def data-types-config
-  [["comment"
+  [["sample"
+    [:d/is-sample]
+    "Indicate sample data"]
+   ["comment"
     []
     "A row used for any kind of comment"]
    ["salary"
@@ -87,13 +93,18 @@
           {:direction :up :delta delta})))
     nil))
 
+(defn sample [data]
+  (->> data (filter (type-of-f? :sample))))
+
 (defn all-your-bucks [data]
-  (let [salaries                     (salaries data)
+  (let [sample                       (sample data)
+        salaries                     (salaries data)
         emergency-fund               (emergency-fund data)
         monthly-expense              (monthly-expense data)
         emergency-fund-months        (emergency-fund-months emergency-fund monthly-expense)
         emergency-fund-months-change (emergency-fund-months-change emergency-fund monthly-expense)]
-    {:salaries                     salaries
+    {:sample                       sample
+     :salaries                     salaries
      :emergency-fund-months        emergency-fund-months
      :emergency-fund-months-change emergency-fund-months-change}))
 
