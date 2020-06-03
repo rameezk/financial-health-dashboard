@@ -140,9 +140,13 @@
                               :scales {:xAxes [{:ticks {:fontColor "white" :maxTicksLimit 12}}]
                                        :yAxes [{:ticks {:fontColor "white" :beginAtZero true}}]}}
                     :data    {:labels   cdx
-                              :datasets [{:data            cdy
-                                          :label           "Salary"
-                                          :backgroundColor "#90EE90"}]}}]
+                              :datasets [{:data                   cdy
+                                          :label                  "Salary"
+                                          :lineTension            0
+                                          :fill                   false
+                                          :borderColor            "#90EE90"
+                                          :cubicInterpolationMode "linear"
+                                          :backgroundColor        "#90EE90"}]}}]
 
     (js/Chart. context (clj->js chart-data))))
 
