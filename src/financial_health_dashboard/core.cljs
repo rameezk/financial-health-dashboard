@@ -5,6 +5,7 @@
    [financial-health-dashboard.domain :as domain]
    [financial-health-dashboard.localstorage :as localstorage]
    [cljs-time.core :as time]
+   [clojure.edn :as edn]
    [cljs-time.format :as tf]
    [goog.dom :as gdom]
    [goog.dom.classlist :as gc]
@@ -24,6 +25,8 @@
 
 (defmulti render-page :page)
 
+(defn page [page] (swap! state #(assoc % :page page)))
+
 (defmulti render-modal (fn [state] (get-in @state [:modal :key])))
 
 (defn show-modal [key data]
@@ -32,96 +35,97 @@
 (defn hide-modal []
   (swap! state #(assoc % :modal {:key :hidden})))
 
-(defmethod render-page :main [{:keys [data model]}]
-  [:div "main"])
-
 (defn set-file-data [data]
   (swap! state #(assoc-in % [:modal :data] data)))
 
 (defn set-app-data [data]
-  (localstorage/set-item! "data" data)
   (swap! state #(assoc % :data data)))
 
-(defn get-data-from-localstorage []
-  (println "Loading data from local storage")
-  (let [
-        data (localstorage/get-item "data")
-        ]
-    (println "data: " data)
-    (set-app-data data)))
+(defn save-data-to-localstorage [data]
+  (localstorage/set-item! "data" (prn-str data)))
 
+(defn build-app-data-from-uploaded-data [parsed-data]
+  (save-data-to-localstorage parsed-data)
+  (set-app-data (-> parsed-data parse/as-domain-values domain/all-your-bucks)))
+
+(defn build-app-data-from-localstorage-data [localstorage-data]
+  (when-not (nil? localstorage-data)
+    (set-app-data (-> localstorage-data
+                      parse/as-domain-values
+                      domain/all-your-bucks))))
+
+(defn get-data-from-localstorage []
+  (or (->> (localstorage/get-item "data") (edn/read-string)) nil))
 
 (defmethod render-modal :upload [{:keys [modal delimiter]}]
-[:div.has-text-dark
- [:h1.heading.has-text-centered "Choose file"]
- [:form
-  [:div.file.is-centered
-   [:label.file-label
-    [:input.file-input {:type      "file" :name "storage"
-                        :on-change (fn [e]
-                                     (let [file   (aget (.. e -target -files) 0)
-                                           reader (js/FileReader.)]
-                                       (set! (.-onload reader)
-                                             #(set-file-data (.. % -target -result)))
-                                       (.readAsText reader file)))}]
-    [:span.file-cta
-     [:span.file-icon
-      [:i.fa.fa-upload]]
-     [:span.file-label "Upload"]]]]]
- (when-let [content (get-in @state [:modal :data])]
-   (let [result
-         (->> content
-              (parse/parse parse/pipe))
-         errors
-         (->> result
-              (filter (comp not :valid?))
-              (map (juxt :i :error)))]
-     (if-not (empty? errors)
-       [:div.content
-        [:hr]
-        [:p.heading.has-text-centered.has-text-danger "Oops. You have some errors"]
-        [:ul
-         (map-indexed
-           (fn [i [row e]]
-             [:li {:key i} "row: " row ": " e])
-           errors)]]
-       [:div.content
-        [:hr]
-        [:p.heading.has-text-centered.has-text-primary "Awesome! No errors!"]
-        [:div.buttons.is-centered
-         [:button.button.is-primary
-          {:on-click (fn [_] (set-app-data (-> result
-                                              parse/as-domain-values
-                                              domain/all-your-bucks))
-                       (hide-modal)
-                       (page :loading)
-                       (js/setTimeout #(page :main)))}
-          "GO"]]])))])
+  [:div.has-text-dark
+   [:h1.heading.has-text-centered "Choose file"]
+   [:form
+    [:div.file.is-centered
+     [:label.file-label
+      [:input.file-input {:type      "file" :name "storage"
+                          :on-change (fn [e]
+                                       (let [file   (aget (.. e -target -files) 0)
+                                             reader (js/FileReader.)]
+                                         (set! (.-onload reader)
+                                               #(set-file-data (.. % -target -result)))
+                                         (.readAsText reader file)))}]
+      [:span.file-cta
+       [:span.file-icon
+        [:i.fa.fa-upload]]
+       [:span.file-label "Upload"]]]]]
+   (when-let [content (get-in @state [:modal :data])]
+     (let [result
+           (->> content
+                (parse/parse parse/pipe))
+           errors
+           (->> result
+                (filter (comp not :valid?))
+                (map (juxt :i :error)))]
+       (if-not (empty? errors)
+         [:div.content
+          [:hr]
+          [:p.heading.has-text-centered.has-text-danger "Oops. You have some errors"]
+          [:ul
+           (map-indexed
+             (fn [i [row e]]
+               [:li {:key i} "row: " row ": " e])
+             errors)]]
+         [:div.content
+          [:hr]
+          [:p.heading.has-text-centered.has-text-primary "Awesome! No errors!"]
+          [:div.buttons.is-centered
+           [:button.button.is-primary
+            {:on-click (fn [_] (build-app-data-from-uploaded-data result)
+                         (hide-modal)
+                         (page :loading)
+                         (js/setTimeout #(page :main)))}
+            "GO"]]])))])
 
 (defmethod render-modal :help [{:keys [modal delimiter]}]
-(println "help modal"))
+  (println "help modal"))
 
 (defmethod render-modal :save [{:keys [modal delimiter]}]
-(println "save modal"))
+  (println "save modal"))
 
 (defmethod render-modal :changelog []
-(changelog/render))
+  (changelog/render))
 
 (defn bar-chart
-[id]
-(let [context    (.getContext (.getElementById js/document id) "2d")
-      chart-data {:type    "bar"
-                  :options {:legend {:labels {:fontColor "white"}}
-                            :scales {:xAxes [{:ticks {:fontColor "white"}}]
-                                     :yAxes [{:ticks {:fontColor "white"}}]}}
-                  :data    {:labels   ["2012" "2013" "2014" "2015" "2016"]
-                            :datasets [{:data            [5 10 15 20 25]
-                                        :label           "Rev in MM"
-                                        :backgroundColor "#90EE90"}
-                                       {:data            [3 6 9 12 15]
-                                        :label           "Cost in MM"
-                                        :backgroundColor "#F08080"}]}}]
-  (js/Chart. context (clj->js chart-data))))
+  [id]
+  (let [context    (.getContext (.getElementById js/document id) "2d")
+        chart-data {:type    "bar"
+                    :options {:legend {:labels {:fontColor "white"}}
+                              :scales {:xAxes [{:ticks {:fontColor "white"}}]
+                                       :yAxes [{:ticks {:fontColor "white"}}]}}
+                    :data    {:labels   ["2012" "2013" "2014" "2015" "2016"]
+                              :datasets [{:data            [5 10 15 20 25]
+                                          :label           "Rev in MM"
+                                          :backgroundColor "#90EE90"}
+                                         {:data            [3 6 9 12 15]
+                                          :label           "Cost in MM"
+                                          :backgroundColor "#F08080"}]}}]
+    (js/Chart. context (clj->js chart-data))))
 
 (defn line-chart
   [id cdx cdy]
@@ -209,7 +213,7 @@
 (defn emergency-fund-months-info-box [{:keys [emergency-fund-months]}]
   (info-box "EMERGENCY FUND MONTHS" (format-number emergency-fund-months)))
 
-(defn page [data]
+(defmethod render-page :main [{:keys [data modal]}]
   [:div.columns.is-multiline.is-centered
    [col 12 (emergency-fund-months-info-box data)]
    [col 12 (salary-over-time-chart data)]])
@@ -226,8 +230,10 @@
    (when-not (= :hidden (get-in @state [:modal :key]))
      [modal state])
    [:div.section.has-background-light
-    (let [data (get-in @state [:data])]
-      (if (nil? data) [sample-page] [page data]))]])
+    (render-page @state)]])
+
+(defn sleep [f ms]
+  (js/setTimeout f ms))
 
 (defmethod render-page :loading [state]
   [:div "loading"])
@@ -241,6 +247,10 @@
 (defn mount-app-element []
   (when-let [el (get-app-element)]
     (mount el)))
+
+(when (= :loading (:page @state))
+  (build-app-data-from-localstorage-data (get-data-from-localstorage))
+  (js/setTimeout #(page :main)))
 
 ;; conditionally start your application based on the presence of an "app" element
 ;; this is particularly helpful for testing this ns without launching the app
