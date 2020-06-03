@@ -16,6 +16,13 @@
    ["year-goal" this-year 13]
    ["year-goal" this-year 11]])
 
+(def salary
+  [
+   ["salary" this-year 1 20000]
+   ["salary" this-year 2 18000]
+   ["salary" this-year 3 22000]
+   ])
+
 (def monthly-expense
   [["monthly-expense" this-year 1 20000]])
 
@@ -32,6 +39,7 @@
   (->> [sample
         date-of-birth
         year-goals
+        salary
         monthly-expense
         emergency-fund]
        (reduce into)

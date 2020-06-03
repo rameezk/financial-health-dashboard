@@ -184,7 +184,6 @@
     [:button.modal-close.is-large {:on-click hide-modal}]]])
 
 (defn col-real-data [size & children]
-  (println "rendering using this")
   [:div.column {:class (str "is-" size)}
    [:div.box.is-shadowless.has-text-grey-lighter
     children]])
