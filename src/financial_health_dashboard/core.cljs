@@ -154,7 +154,7 @@
   (reagent/create-class
     {:component-did-mount #(chart id x y)
      :display-name        "chart"
-     :reagent-render      (fn [] [:canvas {:id id :height "100vw"}])}))
+     :reagent-render      (fn [] [:canvas {:id id}])}))
 
 (defn nav []
   [:div
@@ -250,7 +250,7 @@
           col-sample-data
           col-real-data)]
     [:div.columns.is-multiline.is-centered
-     [col 2 (emergency-fund-months-info-box data)]
+     [col 12 (emergency-fund-months-info-box data)]
      [col 12 (salary-over-time-chart data)]]
     )
   )
