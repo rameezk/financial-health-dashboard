@@ -182,6 +182,65 @@
                                           :backgroundColor "#90EE90"}]}}]
     (js/Chart. context (clj->js chart-data))))
 
+
+(defn pie-chart-1
+  [id]
+  (let [context    (.getContext (.getElementById js/document id) "2d")
+        chart-data {:type    "pie"
+                    :options {:legend {:labels {:fontColor "white"}}
+                              :scales {}}
+                    :data    {:labels   ["Retirement Annuity"
+                                         "Preservation Fund"
+                                         "Emergency Fund"
+                                         "TFSA"
+                                         "Discretionary Investments"]
+                              :datasets [{:data            [20 20 20 20 20]
+                                          :backgroundColor [
+                                                            "#2ecc71"
+                                                            "#3498db"
+                                                            "#e67e22"
+                                                            "#9b59b6"
+                                                            "#1abc9c"
+                                                            ]}]}}]
+    (js/Chart. context (clj->js chart-data))))
+
+(defn pie-chart-2
+  [id]
+  (let [context    (.getContext (.getElementById js/document id) "2d")
+        chart-data {:type    "pie"
+                    :options {:legend {:labels {:fontColor "white"}}
+                              :scales {}}
+                    :data    {:labels   ["Local"
+                                         "Offshore"]
+                              :datasets [{:data            [90 10]
+                                          :backgroundColor [
+                                                            "#2ecc71"
+                                                            "#3498db"]}]}}]
+    (js/Chart. context (clj->js chart-data))))
+
+(defn pie-chart-3
+  [id]
+  (let [context    (.getContext (.getElementById js/document id) "2d")
+        chart-data {:type    "pie"
+                    :options {:legend {:labels {:fontColor "white"}}
+                              :scales {}}
+                    :data    {:labels   ["Property"
+                                         "Bonds"
+                                         "Equity"
+                                         "Cash"
+                                         "Vehicle"
+                                         "Offshore"]
+                              :datasets [{:data            [2 20 29 35 8 6]
+                                          :backgroundColor [
+                                                            "#2ecc71"
+                                                            "#3498db"
+                                                            "#e67e22"
+                                                            "#9b59b6"
+                                                            "#f1c40f"
+                                                            "#c0392b"
+                                                            ]}]}}]
+    (js/Chart. context (clj->js chart-data))))
+
 (defn draw-chart [id chart x y]
   (reagent/create-class
     {:component-did-mount #(chart id x y)
@@ -283,6 +342,18 @@
                "tfsa-lifetime-contribution"
                tfsa-chart-2 nil nil)))
 
+(defn asset-distribution-chart []
+  (chart-box "ASSET TYPE DISTRIBUTION"
+             (draw-chart "asset-distribution" pie-chart-1 nil nil)))
+
+(defn asset-geographic-distribution-chart []
+  (chart-box "ASSET GEOGRAPHIC DISTRIBUTION"
+             (draw-chart "asset-geographic-distribution" pie-chart-2 nil nil)))
+
+(defn asset-allocation-chart []
+  (chart-box "ASSET ALLOCATION"
+             (draw-chart "asset-allocation" pie-chart-3 nil nil)))
+
 (defmethod render-page :main [{:keys [data modal]}]
   (let [col
         (if (= (->
@@ -297,7 +368,10 @@
      [col 12 (emergency-fund-months-info-box data)]
      [col 12 (salary-over-time-chart data)]
      [col 6 (tfsa-yearly-contributions-chart)]
-     [col 6 (tfsa-lifetime-contribution-chart)]]
+     [col 6 (tfsa-lifetime-contribution-chart)]
+     [col 4 (asset-distribution-chart)]
+     [col 4 (asset-geographic-distribution-chart)]
+     [col 4 (asset-allocation-chart)]]
     )
   )
 
