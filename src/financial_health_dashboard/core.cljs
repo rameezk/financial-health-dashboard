@@ -278,13 +278,13 @@
      (render-modal model-state)]
     [:button.modal-close.is-large {:on-click hide-modal}]]])
 
-(defn col-real-data [size & children]
-  [:div.column {:class (str "is-" size)}
+(defn col-real-data [size-desktop size-mobile & children]
+  [:div.column {:class (str "is-" size-desktop "-desktop " "is-" size-mobile "-mobile " "is-" size-mobile "-tablet")}
    [:div.box.is-shadowless.has-text-grey-lighter
     children]])
 
-(defn col-sample-data [size & children]
-  [:div.column {:class (str "is-" size)}
+(defn col-sample-data [size-desktop size-mobile & children]
+  [:div.column {:class (str "is-" size-desktop "-desktop " "is-" size-mobile "-mobile " "is-" size-mobile "-tablet")}
    [:div.box.is-shadowless.has-text-grey-lighter
     [:span.tag.is-warning.is-size-7.sample-tag "sample"]
     children]])
@@ -365,13 +365,13 @@
           col-sample-data
           col-real-data)]
     [:div.columns.is-multiline.is-centered
-     [col 12 (emergency-fund-months-info-box data)]
-     [col 12 (salary-over-time-chart data)]
-     [col 6 (tfsa-yearly-contributions-chart)]
-     [col 6 (tfsa-lifetime-contribution-chart)]
-     [col 4 (asset-distribution-chart)]
-     [col 4 (asset-geographic-distribution-chart)]
-     [col 4 (asset-allocation-chart)]]
+     [col 12 12 (emergency-fund-months-info-box data)]
+     [col 12 12 (salary-over-time-chart data)]
+     [col 6 12 (tfsa-yearly-contributions-chart)]
+     [col 6 12 (tfsa-lifetime-contribution-chart)]
+     [col 4 12 (asset-distribution-chart)]
+     [col 4 12 (asset-geographic-distribution-chart)]
+     [col 4 12 (asset-allocation-chart)]]
     )
   )
 
