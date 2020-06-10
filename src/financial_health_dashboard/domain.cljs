@@ -40,6 +40,8 @@
     [:d/year :d/month :d/amount]
     "Emergency fund balance."]
    ["asset"
+    [:d/name :d/year :d/month :d/amount]]
+   ["liability"
     [:d/name :d/year :d/month :d/amount]]])
 
 (def data-types (->> data-types-config
@@ -106,15 +108,22 @@
        (map timestamped)
        (sort-by :timestamp)))
 
-(defn net-assets-per-month [assets]
-  (->> assets (map #(assoc % :grouping [(:year %) (:month %)]))
+(defn net-per-month [data]
+  (->> data (map #(assoc % :grouping [(:year %) (:month %)]))
        (group-by :grouping)
        (map (fn [[g t]]
               [g (->> t (map :amount) (reduce +))]))
        (into {})))
 
-(defn net-worth [net-assets-per-month]
-  (->> net-assets-per-month (last) (second)))
+(defn liabilities [data]
+  (->> data (filter (type-of-f? :liability))
+       (map timestamped)
+       (sort-by :timestamp)))
+
+(defn net-worth [net-assets-per-month net-liabilities-per-month]
+  (let [latest-monthly-net-assets      (->> net-assets-per-month (last) (second))
+        latest-monthly-net-liabilities (->> net-liabilities-per-month (last) (second))]
+    (- latest-monthly-net-assets latest-monthly-net-liabilities)))
 
 (defn all-your-bucks [data]
   (let [sample                       (sample data)
@@ -124,8 +133,10 @@
         emergency-fund-months        (emergency-fund-months emergency-fund monthly-expense)
         emergency-fund-months-change (emergency-fund-months-change emergency-fund monthly-expense)
         assets                       (assets data)
-        net-assets-per-month         (net-assets-per-month assets)
-        net-worth                    (net-worth net-assets-per-month)]
+        liabilities                  (liabilities data)
+        net-assets-per-month         (net-per-month assets)
+        net-liabilities-per-month    (net-per-month liabilities)
+        net-worth                    (net-worth net-assets-per-month net-liabilities-per-month)]
     {:sample                       sample
      :salaries                     salaries
      :emergency-fund-months        emergency-fund-months
