@@ -113,7 +113,7 @@
   (->> data (map #(assoc % :grouping [(:year %) (:month %)]))
        (group-by :grouping)
        (map (fn [[g t]]
-              [g (->> t (map :amount) (reduce +))]))
+              [g (->> t (map :amount) (reduce +)) :bob]))
        (into {})))
 
 (defn liabilities [data]
@@ -140,6 +140,15 @@
           {:direction :up :delta delta :percentage (* (/ delta second-last-net-worth) 100)})))
     nil))
 
+(defn flatten-grouped-months [grouped-months]
+  (map (fn [[[y m] a]] {:year y :month m :amount a}) grouped-months))
+
+(defn make-series-from-grouped-data [grouped-data]
+  (->> grouped-data (flatten-grouped-months)
+       (map timestamped)
+       (sort-by :timestamp)))
+
+
 (defn all-your-bucks [data]
   (let [sample                       (sample data)
         salaries                     (salaries data)
@@ -148,9 +157,11 @@
         emergency-fund-months        (emergency-fund-months emergency-fund monthly-expense)
         emergency-fund-months-change (emergency-fund-months-change emergency-fund monthly-expense)
         assets                       (assets data)
-        liabilities                  (liabilities data)
         net-assets-per-month         (net-per-month assets)
+        net-assets-series            (make-series-from-grouped-data net-assets-per-month)
+        liabilities                  (liabilities data)
         net-liabilities-per-month    (net-per-month liabilities)
+        net-liabilities-series       (make-series-from-grouped-data net-liabilities-per-month)
         net-worth                    (net-worth net-assets-per-month net-liabilities-per-month)
         net-worth-change             (net-worth-change net-assets-per-month net-liabilities-per-month)]
     {:sample                       sample
@@ -158,5 +169,7 @@
      :emergency-fund-months        emergency-fund-months
      :emergency-fund-months-change emergency-fund-months-change
      :net-worth                    net-worth
-     :net-worth-change             net-worth-change}))
+     :net-worth-change             net-worth-change
+     :net-assets                   net-assets-series
+     :net-liabilities              net-liabilities-series}))
 

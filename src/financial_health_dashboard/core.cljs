@@ -92,9 +92,9 @@
           [:p.heading.has-text-centered.has-text-danger "Oops. You have some errors"]
           [:ul
            (map-indexed
-            (fn [i [row e]]
-              [:li {:key i} "row: " row ": " e])
-            errors)]]
+             (fn [i [row e]]
+               [:li {:key i} "row: " row ": " e])
+             errors)]]
          [:div.content
           [:hr]
           [:p.heading.has-text-centered.has-text-primary "Awesome! No errors!"]
@@ -146,6 +146,31 @@
                                           :borderColor            "#90EE90"
                                           :cubicInterpolationMode "linear"
                                           :backgroundColor        "#90EE90"}]}}]
+
+    (js/Chart. context (clj->js chart-data))))
+
+(defn net-worth-line-chart
+  [id labels assets liabilities]
+  (let [context    (.getContext (.getElementById js/document id) "2d")
+        chart-data {:type    "line"
+                    :options {:legend {:labels {:fontColor "white"}}
+                              :scales {:xAxes [{:ticks {:fontColor "white" :maxTicksLimit 12}}]
+                                       :yAxes [{:ticks {:fontColor "white" :beginAtZero true}}]}}
+                    :data    {:labels   labels
+                              :datasets [{:data                   assets
+                                          :label                  "Assets"
+                                          :lineTension            0
+                                          :fill                   false
+                                          :borderColor            "#90EE90"
+                                          :cubicInterpolationMode "linear"
+                                          :backgroundColor        "#90EE90"}
+                                         {:data                   liabilities
+                                          :label                  "Liabilities"
+                                          :lineTension            0
+                                          :fill                   false
+                                          :borderColor            "#EA3C53"
+                                          :cubicInterpolationMode "linear"
+                                          :backgroundColor        "#EA3C53"}]}}]
 
     (js/Chart. context (clj->js chart-data))))
 
@@ -234,11 +259,11 @@
                                                             "#c0392b"]}]}}]
     (js/Chart. context (clj->js chart-data))))
 
-(defn draw-chart [id chart x y]
+(defn draw-chart [id chart x y1 y2]
   (reagent/create-class
-   {:component-did-mount #(chart id x y)
-    :display-name        "chart"
-    :reagent-render      (fn [] [:canvas {:id id}])}))
+    {:component-did-mount #(chart id x y1 y2)
+     :display-name        "chart"
+     :reagent-render      (fn [] [:canvas {:id id}])}))
 
 (defn nav []
   [:div
@@ -305,8 +330,16 @@
   (let [x (->> salaries (map :cljs-date) (map #(tf/unparse custom-month-year %)))
         y (->> salaries (map :amount))]
     (chart-box "SALARY OVER TIME" (draw-chart
-                                   "salary-over-time"
-                                   line-chart x y))))
+                                    "salary-over-time"
+                                    line-chart x y nil))))
+
+(defn net-worth-over-time-chart [{:keys [net-assets net-liabilities]}]
+  (let [labels      (->> net-assets (map :cljs-date) (map #(tf/unparse custom-month-year %)))
+        assets      (->> net-assets (map :amount))
+        liabilities (->> net-liabilities (map :amount))]
+    (chart-box "NET WORTH OVER TIME" (draw-chart
+                                       "net-worth-over-time"
+                                       net-worth-line-chart labels assets liabilities))))
 
 (defn emergency-fund-months-info-box [{:keys [emergency-fund-months emergency-fund-months-change]}]
   [:div.has-text-centered.info-box
@@ -337,40 +370,41 @@
 (defn tfsa-yearly-contributions-chart []
   (chart-box "TFSA YEARLY CONTRIBUTIONS"
              (draw-chart
-              "tfsa-yearly-contributions"
-              tfsa-chart-1 nil nil)))
+               "tfsa-yearly-contributions"
+               tfsa-chart-1 nil nil nil)))
 
 (defn tfsa-lifetime-contribution-chart []
   (chart-box "TFSA LIFETIME CONTRIBUTION"
              (draw-chart
-              "tfsa-lifetime-contribution"
-              tfsa-chart-2 nil nil)))
+               "tfsa-lifetime-contribution"
+               tfsa-chart-2 nil nil nil)))
 
 (defn asset-distribution-chart []
   (chart-box "ASSET TYPE DISTRIBUTION"
-             (draw-chart "asset-distribution" pie-chart-1 nil nil)))
+             (draw-chart "asset-distribution" pie-chart-1 nil nil nil)))
 
 (defn asset-geographic-distribution-chart []
   (chart-box "ASSET GEOGRAPHIC DISTRIBUTION"
-             (draw-chart "asset-geographic-distribution" pie-chart-2 nil nil)))
+             (draw-chart "asset-geographic-distribution" pie-chart-2 nil nil nil)))
 
 (defn asset-allocation-chart []
   (chart-box "ASSET ALLOCATION"
-             (draw-chart "asset-allocation" pie-chart-3 nil nil)))
+             (draw-chart "asset-allocation" pie-chart-3 nil nil nil)))
 
 (defmethod render-page :main [{:keys [data modal]}]
   (let [col
         (if (= (->
-                data
-                (get :sample)
-                (first)
-                (get :is-sample))
+                 data
+                 (get :sample)
+                 (first)
+                 (get :is-sample))
                "yes")
           col-sample-data
           col-real-data)]
     [:div.columns.is-multiline.is-centered
      [col 6 12 (net-worth-info-box data)]
      [col 6 12 (emergency-fund-months-info-box data)]
+     [col 12 12 (net-worth-over-time-chart data)]
      [col 12 12 (salary-over-time-chart data)]
      [col 6 12 (tfsa-yearly-contributions-chart)]
      [col 6 12 (tfsa-lifetime-contribution-chart)]
@@ -404,8 +438,8 @@
 
 (when (= :loading (:page @state))
   (build-app-data-from-localstorage-data (or
-                                          (get-data-from-localstorage)
-                                          (get-sample-data)))
+                                           (get-data-from-localstorage)
+                                           (get-sample-data)))
   (js/setTimeout #(page :main)))
 
 ;; conditionally start your application based on the presence of an "app" element
