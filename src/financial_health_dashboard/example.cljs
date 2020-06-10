@@ -35,13 +35,21 @@
 (def sample
   [["sample" "yes"]])
 
+(def assets
+  [
+   ["asset" "emergency-fund" this-year 1 10000]
+   ["asset" "emergency-fund" this-year 2 20000]
+   ["asset" "TFSA" this-year 1 30000]
+   ["asset" "TFSA" this-year 2 40000]])
+
 (def data-piped
   (->> [sample
         date-of-birth
         year-goals
         salary
         monthly-expense
-        emergency-fund]
+        emergency-fund
+        assets]
        (reduce into)
        (map #(->> % (map str) (str/join "|")))
        (str/join "\n")))

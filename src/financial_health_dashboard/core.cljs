@@ -61,7 +61,6 @@
 (defn get-sample-data []
   (parse/parse parse/pipe example/data-piped))
 
-
 (defmethod render-modal :upload [{:keys [modal delimiter]}]
   [:div.has-text-dark
    [:h1.heading.has-text-centered "Choose file"]
@@ -182,7 +181,6 @@
                                           :backgroundColor "#90EE90"}]}}]
     (js/Chart. context (clj->js chart-data))))
 
-
 (defn pie-chart-1
   [id]
   (let [context    (.getContext (.getElementById js/document id) "2d")
@@ -195,13 +193,11 @@
                                          "TFSA"
                                          "Discretionary Investments"]
                               :datasets [{:data            [20 20 20 20 20]
-                                          :backgroundColor [
-                                                            "#2ecc71"
+                                          :backgroundColor ["#2ecc71"
                                                             "#3498db"
                                                             "#e67e22"
                                                             "#9b59b6"
-                                                            "#1abc9c"
-                                                            ]}]}}]
+                                                            "#1abc9c"]}]}}]
     (js/Chart. context (clj->js chart-data))))
 
 (defn pie-chart-2
@@ -213,8 +209,7 @@
                     :data    {:labels   ["Local"
                                          "Offshore"]
                               :datasets [{:data            [90 10]
-                                          :backgroundColor [
-                                                            "#2ecc71"
+                                          :backgroundColor ["#2ecc71"
                                                             "#3498db"]}]}}]
     (js/Chart. context (clj->js chart-data))))
 
@@ -231,14 +226,12 @@
                                          "Vehicle"
                                          "Offshore"]
                               :datasets [{:data            [2 20 29 35 8 6]
-                                          :backgroundColor [
-                                                            "#2ecc71"
+                                          :backgroundColor ["#2ecc71"
                                                             "#3498db"
                                                             "#e67e22"
                                                             "#9b59b6"
                                                             "#f1c40f"
-                                                            "#c0392b"
-                                                            ]}]}}]
+                                                            "#c0392b"]}]}}]
     (js/Chart. context (clj->js chart-data))))
 
 (defn draw-chart [id chart x y]
@@ -297,18 +290,16 @@
      [:p.subtitle.is-size-7.has-text-light.has-text-success
       [:i.fa.fa-arrow-up] (str " " change)]
      [:p.subtitle.is-size-7.has-text-light.has-text-danger
-      [:i.fa.fa-arrow-down] (str " " change)]
-     )
-   ])
+      [:i.fa.fa-arrow-down] (str " " change)])])
 
 (defn chart-box [title content & [class]]
-[:div.has-text-centered.info-box
- [:p.heading title]
- [:div.is-centered
-  [content]]])
+  [:div.has-text-centered.info-box
+   [:p.heading title]
+   [:div.is-centered
+    [content]]])
 
 (def custom-month-year
-(tf/formatter "MMM-yy"))
+  (tf/formatter "MMM-yy"))
 
 (defn salary-over-time-chart [{:keys [salaries]}]
   (let [x (->> salaries (map :cljs-date) (map #(tf/unparse custom-month-year %)))
@@ -323,36 +314,41 @@
    [:p.title {:class "has-text-light"} (format-number emergency-fund-months)]
    (if (= (get emergency-fund-months-change :direction) :up)
      [:p.subtitle.is-size-7.has-text-light.has-text-success
-      [:i.fa.fa-arrow-up] (str " " (format-number ( get emergency-fund-months-change :delta )))]
+      [:i.fa.fa-arrow-up] (str " " (format-number (get emergency-fund-months-change :delta)))]
      (if (= (get emergency-fund-months-change :direction) :down)
        [:p.subtitle.is-size-7.has-text-light.has-text-danger
-        [:i.fa.fa-arrow-down] (str " " (format-number ( get emergency-fund-months-change :delta )))]
+        [:i.fa.fa-arrow-down] (str " " (format-number (get emergency-fund-months-change :delta)))]
        [:p.subtitle.is-size-7.has-text-light.has-text-warning
-        [:i.fa.fa-arrow-right] (str " " (format-number ( get emergency-fund-months-change :delta )))]))])
+        [:i.fa.fa-arrow-right] (str " " (format-number (get emergency-fund-months-change :delta)))]))])
+
+(defn net-worth-info-box [{:keys [net-worth]}]
+  [:div.has-text-centered.info-box
+   [:p.heading "NET WORTH"]
+   [:p.title {:class "has-text-light"} (format-number net-worth)]])
 
 (defn tfsa-yearly-contributions-chart []
-  (chart-box "TFSA YEARLY CONTRIBUTIONS"
-             (draw-chart
-               "tfsa-yearly-contributions"
-               tfsa-chart-1 nil nil)))
+(chart-box "TFSA YEARLY CONTRIBUTIONS"
+           (draw-chart
+             "tfsa-yearly-contributions"
+             tfsa-chart-1 nil nil)))
 
 (defn tfsa-lifetime-contribution-chart []
-  (chart-box "TFSA LIFETIME CONTRIBUTION"
-             (draw-chart
-               "tfsa-lifetime-contribution"
-               tfsa-chart-2 nil nil)))
+(chart-box "TFSA LIFETIME CONTRIBUTION"
+           (draw-chart
+             "tfsa-lifetime-contribution"
+             tfsa-chart-2 nil nil)))
 
 (defn asset-distribution-chart []
-  (chart-box "ASSET TYPE DISTRIBUTION"
-             (draw-chart "asset-distribution" pie-chart-1 nil nil)))
+(chart-box "ASSET TYPE DISTRIBUTION"
+           (draw-chart "asset-distribution" pie-chart-1 nil nil)))
 
 (defn asset-geographic-distribution-chart []
-  (chart-box "ASSET GEOGRAPHIC DISTRIBUTION"
-             (draw-chart "asset-geographic-distribution" pie-chart-2 nil nil)))
+(chart-box "ASSET GEOGRAPHIC DISTRIBUTION"
+           (draw-chart "asset-geographic-distribution" pie-chart-2 nil nil)))
 
 (defn asset-allocation-chart []
-  (chart-box "ASSET ALLOCATION"
-             (draw-chart "asset-allocation" pie-chart-3 nil nil)))
+(chart-box "ASSET ALLOCATION"
+           (draw-chart "asset-allocation" pie-chart-3 nil nil)))
 
 (defmethod render-page :main [{:keys [data modal]}]
   (let [col
@@ -365,15 +361,14 @@
           col-sample-data
           col-real-data)]
     [:div.columns.is-multiline.is-centered
-     [col 12 12 (emergency-fund-months-info-box data)]
+     [col 6 12 (net-worth-info-box data)]
+     [col 6 12 (emergency-fund-months-info-box data)]
      [col 12 12 (salary-over-time-chart data)]
      [col 6 12 (tfsa-yearly-contributions-chart)]
      [col 6 12 (tfsa-lifetime-contribution-chart)]
      [col 4 12 (asset-distribution-chart)]
      [col 4 12 (asset-geographic-distribution-chart)]
-     [col 4 12 (asset-allocation-chart)]]
-    )
-  )
+     [col 4 12 (asset-allocation-chart)]]))
 
 (defn app []
 [:div

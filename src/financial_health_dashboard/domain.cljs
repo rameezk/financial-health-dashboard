@@ -5,6 +5,8 @@
    [cljs-time.coerce :as time.coerce]
    [clojure.string :as string]))
 
+(defn not-empty-string? [s] (and (string? s)
+                                 (not-empty s)))
 (defn year? [n] (boolean (and (number? n) (>= n 1900) (> 3000 n))))
 (defn month? [n] (boolean (and (number? n) (>= n 1) (> 13 n))))
 (def yes "yes")
@@ -14,6 +16,7 @@
 (s/def :d/year year?)
 (s/def :d/month month?)
 (s/def :d/amount number?)
+(s/def :d/name not-empty-string?)
 (s/def :d/is-sample #(contains? #{yes no} %))
 
 
@@ -35,7 +38,9 @@
     "Monthly expense. This doesn't include contributions to RA's, investments or savings accounts."]
    ["emergency-fund"
     [:d/year :d/month :d/amount]
-    "Emergency fund balance."]])
+    "Emergency fund balance."]
+   ["asset"
+    [:d/name :d/year :d/month :d/amount]]])
 
 (def data-types (->> data-types-config
                      (map (juxt first second))
@@ -96,15 +101,34 @@
 (defn sample [data]
   (->> data (filter (type-of-f? :sample))))
 
+(defn assets [data]
+  (->> data (filter (type-of-f? :asset))
+       (map timestamped)
+       (sort-by :timestamp)))
+
+(defn net-assets-per-month [assets]
+  (->> assets (map #(assoc % :grouping [(:year %) (:month %)]))
+       (group-by :grouping)
+       (map (fn [[g t]]
+              [g (->> t (map :amount) (reduce +))]))
+       (into {})))
+
+(defn net-worth [net-assets-per-month]
+  (->> net-assets-per-month (last) (second)))
+
 (defn all-your-bucks [data]
   (let [sample                       (sample data)
         salaries                     (salaries data)
         emergency-fund               (emergency-fund data)
         monthly-expense              (monthly-expense data)
         emergency-fund-months        (emergency-fund-months emergency-fund monthly-expense)
-        emergency-fund-months-change (emergency-fund-months-change emergency-fund monthly-expense)]
+        emergency-fund-months-change (emergency-fund-months-change emergency-fund monthly-expense)
+        assets                       (assets data)
+        net-assets-per-month         (net-assets-per-month assets)
+        net-worth                    (net-worth net-assets-per-month)]
     {:sample                       sample
      :salaries                     salaries
      :emergency-fund-months        emergency-fund-months
-     :emergency-fund-months-change emergency-fund-months-change}))
+     :emergency-fund-months-change emergency-fund-months-change
+     :net-worth                    net-worth}))
 
