@@ -133,10 +133,10 @@
           second-last-net-worth (net-worth net-assets-per-month net-liabilities-per-month 2)
           delta                 (- latest-net-worth second-last-net-worth)]
       (if (zero? delta)
-        {:direction :same :delta delta}
+        {:direction :same :delta delta :percentage 0}
         (if (neg? delta)
-          {:direction :down :delta (* -1 delta)}
-          {:direction :up :delta delta})))
+          {:direction :down :delta (* -1 delta) :percentage (* (/ delta second-last-net-worth) -100)}
+          {:direction :up :delta delta :percentage (* (/ delta second-last-net-worth) 100)})))
     nil))
 
 (defn all-your-bucks [data]
