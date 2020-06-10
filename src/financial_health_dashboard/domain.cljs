@@ -113,7 +113,7 @@
   (->> data (map #(assoc % :grouping [(:year %) (:month %)]))
        (group-by :grouping)
        (map (fn [[g t]]
-              [g (->> t (map :amount) (reduce +)) :bob]))
+              [g (->> t (map :amount) (reduce +))]))
        (into {})))
 
 (defn liabilities [data]
@@ -143,10 +143,21 @@
 (defn flatten-grouped-months [grouped-months]
   (map (fn [[[y m] a]] {:year y :month m :amount a}) grouped-months))
 
+
+(defn net-worths [assets liabilities]
+  (let [
+        l  (->> liabilities (map #(assoc % :amount (* -1 (:amount %)))))
+        al (concat assets l)]
+    (->> al (map #(assoc % :grouping [(:year %) (:month %)]))
+         (group-by :grouping)
+         (map (fn [[g t]]
+                [g (->> t (map :amount) (reduce +))]))
+         (into {}))))
+
 (defn make-series-from-grouped-data [grouped-data]
-  (->> grouped-data (flatten-grouped-months)
-       (map timestamped)
-       (sort-by :timestamp)))
+(->> grouped-data (flatten-grouped-months)
+     (map timestamped)
+     (sort-by :timestamp)))
 
 
 (defn all-your-bucks [data]
@@ -163,11 +174,13 @@
         net-liabilities-per-month    (net-per-month liabilities)
         net-liabilities-series       (make-series-from-grouped-data net-liabilities-per-month)
         net-worth                    (net-worth net-assets-per-month net-liabilities-per-month)
+        net-worths                   (make-series-from-grouped-data (net-worths assets liabilities))
         net-worth-change             (net-worth-change net-assets-per-month net-liabilities-per-month)]
     {:sample                       sample
      :salaries                     salaries
      :emergency-fund-months        emergency-fund-months
      :emergency-fund-months-change emergency-fund-months-change
+     :net-worths                   net-worths
      :net-worth                    net-worth
      :net-worth-change             net-worth-change
      :net-assets                   net-assets-series

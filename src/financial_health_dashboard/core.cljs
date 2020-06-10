@@ -150,27 +150,36 @@
     (js/Chart. context (clj->js chart-data))))
 
 (defn net-worth-line-chart
-  [id labels assets liabilities]
+  [id labels net-worth assets liabilities]
   (let [context    (.getContext (.getElementById js/document id) "2d")
         chart-data {:type    "line"
                     :options {:legend {:labels {:fontColor "white"}}
                               :scales {:xAxes [{:ticks {:fontColor "white" :maxTicksLimit 12}}]
                                        :yAxes [{:ticks {:fontColor "white"}}]}}
                     :data    {:labels   labels
-                              :datasets [{:data                   assets
-                                          :label                  "Assets"
+                              :datasets [{:data                   net-worth
+                                          :label                  "Net Worth"
                                           :lineTension            0
                                           :fill                   false
                                           :borderColor            "#90EE90"
                                           :cubicInterpolationMode "linear"
                                           :backgroundColor        "#90EE90"}
+                                         {:data                   assets
+                                          :label                  "Assets"
+                                          :lineTension            0
+                                          :fill                   false
+                                          :hidden                 true
+                                          :borderColor            "#EA3C53"
+                                          :cubicInterpolationMode "linear"
+                                          :backgroundColor        "#EA3C53"}
                                          {:data                   liabilities
                                           :label                  "Liabilities"
                                           :lineTension            0
                                           :fill                   false
-                                          :borderColor            "#EA3C53"
+                                          :hidden                 true
+                                          :borderColor            "#e67e22"
                                           :cubicInterpolationMode "linear"
-                                          :backgroundColor        "#EA3C53"}]}}]
+                                          :backgroundColor        "#e67e22"}]}}]
 
     (js/Chart. context (clj->js chart-data))))
 
@@ -259,9 +268,9 @@
                                                             "#c0392b"]}]}}]
     (js/Chart. context (clj->js chart-data))))
 
-(defn draw-chart [id chart x y1 y2]
+(defn draw-chart [id chart x y1 y2 y3]
   (reagent/create-class
-    {:component-did-mount #(chart id x y1 y2)
+    {:component-did-mount #(chart id x y1 y2 y3)
      :display-name        "chart"
      :reagent-render      (fn [] [:canvas {:id id}])}))
 
@@ -331,15 +340,16 @@
         y (->> salaries (map :amount))]
     (chart-box "SALARY OVER TIME" (draw-chart
                                     "salary-over-time"
-                                    line-chart x y nil))))
+                                    line-chart x y nil nil))))
 
-(defn net-worth-over-time-chart [{:keys [net-assets net-liabilities]}]
+(defn net-worth-over-time-chart [{:keys [net-assets net-liabilities net-worths]}]
   (let [labels      (->> net-assets (map :cljs-date) (map #(tf/unparse custom-month-year %)))
         assets      (->> net-assets (map :amount))
-        liabilities (->> net-liabilities (map :amount))]
+        liabilities (->> net-liabilities (map :amount))
+        net-worth   (->> net-worths (map :amount))]
     (chart-box "NET WORTH OVER TIME" (draw-chart
                                        "net-worth-over-time"
-                                       net-worth-line-chart labels assets liabilities))))
+                                       net-worth-line-chart labels net-worth assets liabilities))))
 
 (defn emergency-fund-months-info-box [{:keys [emergency-fund-months emergency-fund-months-change]}]
   [:div.has-text-centered.info-box
@@ -371,27 +381,27 @@
   (chart-box "TFSA YEARLY CONTRIBUTIONS"
              (draw-chart
                "tfsa-yearly-contributions"
-               tfsa-chart-1 nil nil nil)))
+               tfsa-chart-1 nil nil nil nil)))
 
 (defn tfsa-lifetime-contribution-chart []
   (chart-box "TFSA LIFETIME CONTRIBUTION"
              (draw-chart
                "tfsa-lifetime-contribution"
-               tfsa-chart-2 nil nil nil)))
+               tfsa-chart-2 nil nil nil nil)))
 
 (defn asset-distribution-chart []
   (chart-box "ASSET TYPE DISTRIBUTION"
-             (draw-chart "asset-distribution" pie-chart-1 nil nil nil)))
+             (draw-chart "asset-distribution" pie-chart-1 nil nil nil nil)))
 
 (defn asset-geographic-distribution-chart []
   (chart-box "ASSET GEOGRAPHIC DISTRIBUTION"
-             (draw-chart "asset-geographic-distribution" pie-chart-2 nil nil nil)))
+             (draw-chart "asset-geographic-distribution" pie-chart-2 nil nil nil nil)))
 
 (defn asset-allocation-chart []
   (chart-box "ASSET ALLOCATION"
-             (draw-chart "asset-allocation" pie-chart-3 nil nil nil)))
+             (draw-chart "asset-allocation" pie-chart-3 nil nil nil nil)))
 
-(defmethod render-page :main [{:keys [data modal]}]
+(defmethod render-page :main [{:keys [data]}]
   (let [col
         (if (= (->
                  data
