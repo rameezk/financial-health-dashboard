@@ -321,10 +321,18 @@
        [:p.subtitle.is-size-7.has-text-light.has-text-warning
         [:i.fa.fa-arrow-right] (str " " (format-number (get emergency-fund-months-change :delta)))]))])
 
-(defn net-worth-info-box [{:keys [net-worth]}]
+(defn net-worth-info-box [{:keys [net-worth net-worth-change]}]
   [:div.has-text-centered.info-box
    [:p.heading "NET WORTH"]
-   [:p.title {:class "has-text-light"} (format-number net-worth)]])
+   [:p.title {:class "has-text-light"} (format-number net-worth)]
+   (if (= (get net-worth-change :direction) :up)
+     [:p.subtitle.is-size-7.has-text-light.has-text-success
+      [:i.fa.fa-arrow-up] (str " " (format-number (get net-worth-change :delta)))]
+     (if (= (get net-worth-change :direction) :down)
+       [:p.subtitle.is-size-7.has-text-light.has-text-danger
+        [:i.fa.fa-arrow-down] (str " " (format-number (get net-worth-change :delta)))]
+       [:p.subtitle.is-size-7.has-text-light.has-text-warning
+        [:i.fa.fa-arrow-right] (str " " (format-number (get net-worth-change :delta)))]))])
 
 (defn tfsa-yearly-contributions-chart []
 (chart-box "TFSA YEARLY CONTRIBUTIONS"

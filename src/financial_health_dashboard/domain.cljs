@@ -120,10 +120,24 @@
        (map timestamped)
        (sort-by :timestamp)))
 
-(defn net-worth [net-assets-per-month net-liabilities-per-month]
-  (let [latest-monthly-net-assets      (->> net-assets-per-month (last) (second))
-        latest-monthly-net-liabilities (->> net-liabilities-per-month (last) (second))]
-    (- latest-monthly-net-assets latest-monthly-net-liabilities)))
+(defn net-worth
+  ([net-assets net-liabilities] (net-worth net-assets net-liabilities 1))
+  ([net-assets net-liabilities n-last]
+   (let [latest-monthly-net-assets      (->> net-assets (take-last n-last) (first) (second))
+         latest-monthly-net-liabilities (->> net-liabilities (take-last n-last) (first) (second))]
+     (- latest-monthly-net-assets latest-monthly-net-liabilities))))
+
+(defn net-worth-change [net-assets-per-month net-liabilities-per-month]
+  (if (or (> (count net-assets-per-month) 1) (> (count net-liabilities-per-month) 1))
+    (let [latest-net-worth      (net-worth net-assets-per-month net-liabilities-per-month)
+          second-last-net-worth (net-worth net-assets-per-month net-liabilities-per-month 2)
+          delta                 (- latest-net-worth second-last-net-worth)]
+      (if (zero? delta)
+        {:direction :same :delta delta}
+        (if (neg? delta)
+          {:direction :down :delta (* -1 delta)}
+          {:direction :up :delta delta})))
+    nil))
 
 (defn all-your-bucks [data]
   (let [sample                       (sample data)
@@ -136,10 +150,12 @@
         liabilities                  (liabilities data)
         net-assets-per-month         (net-per-month assets)
         net-liabilities-per-month    (net-per-month liabilities)
-        net-worth                    (net-worth net-assets-per-month net-liabilities-per-month)]
+        net-worth                    (net-worth net-assets-per-month net-liabilities-per-month)
+        net-worth-change             (net-worth-change net-assets-per-month net-liabilities-per-month)]
     {:sample                       sample
      :salaries                     salaries
      :emergency-fund-months        emergency-fund-months
      :emergency-fund-months-change emergency-fund-months-change
-     :net-worth                    net-worth}))
+     :net-worth                    net-worth
+     :net-worth-change             net-worth-change}))
 
