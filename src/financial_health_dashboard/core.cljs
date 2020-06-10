@@ -92,9 +92,9 @@
           [:p.heading.has-text-centered.has-text-danger "Oops. You have some errors"]
           [:ul
            (map-indexed
-             (fn [i [row e]]
-               [:li {:key i} "row: " row ": " e])
-             errors)]]
+            (fn [i [row e]]
+              [:li {:key i} "row: " row ": " e])
+            errors)]]
          [:div.content
           [:hr]
           [:p.heading.has-text-centered.has-text-primary "Awesome! No errors!"]
@@ -236,9 +236,9 @@
 
 (defn draw-chart [id chart x y]
   (reagent/create-class
-    {:component-did-mount #(chart id x y)
-     :display-name        "chart"
-     :reagent-render      (fn [] [:canvas {:id id}])}))
+   {:component-did-mount #(chart id x y)
+    :display-name        "chart"
+    :reagent-render      (fn [] [:canvas {:id id}])}))
 
 (defn nav []
   [:div
@@ -305,8 +305,8 @@
   (let [x (->> salaries (map :cljs-date) (map #(tf/unparse custom-month-year %)))
         y (->> salaries (map :amount))]
     (chart-box "SALARY OVER TIME" (draw-chart
-                                    "salary-over-time"
-                                    line-chart x y))))
+                                   "salary-over-time"
+                                   line-chart x y))))
 
 (defn emergency-fund-months-info-box [{:keys [emergency-fund-months emergency-fund-months-change]}]
   [:div.has-text-centered.info-box
@@ -314,12 +314,12 @@
    [:p.title {:class "has-text-light"} (format-number emergency-fund-months)]
    (if (= (get emergency-fund-months-change :direction) :up)
      [:p.subtitle.is-size-7.has-text-light.has-text-success
-      [:i.fa.fa-arrow-up] (str " " (format-number (get emergency-fund-months-change :delta)))]
+      [:i.fa.fa-arrow-up] (str " " (format-number (get emergency-fund-months-change :delta)) " (" (format-number (get emergency-fund-months-change :percentage)) "%)")]
      (if (= (get emergency-fund-months-change :direction) :down)
        [:p.subtitle.is-size-7.has-text-light.has-text-danger
-        [:i.fa.fa-arrow-down] (str " " (format-number (get emergency-fund-months-change :delta)))]
+        [:i.fa.fa-arrow-down] (str " " (format-number (get emergency-fund-months-change :delta)) " (" (format-number (get emergency-fund-months-change :percentage)) "%)")]
        [:p.subtitle.is-size-7.has-text-light.has-text-warning
-        [:i.fa.fa-arrow-right] (str " " (format-number (get emergency-fund-months-change :delta)))]))])
+        [:i.fa.fa-arrow-right] (str " " (format-number (get emergency-fund-months-change :delta)) " (" (format-number (get emergency-fund-months-change :percentage)) "%)")]))])
 
 (defn net-worth-info-box [{:keys [net-worth net-worth-change]}]
   [:div.has-text-centered.info-box
@@ -337,14 +337,14 @@
 (defn tfsa-yearly-contributions-chart []
   (chart-box "TFSA YEARLY CONTRIBUTIONS"
              (draw-chart
-               "tfsa-yearly-contributions"
-               tfsa-chart-1 nil nil)))
+              "tfsa-yearly-contributions"
+              tfsa-chart-1 nil nil)))
 
 (defn tfsa-lifetime-contribution-chart []
   (chart-box "TFSA LIFETIME CONTRIBUTION"
              (draw-chart
-               "tfsa-lifetime-contribution"
-               tfsa-chart-2 nil nil)))
+              "tfsa-lifetime-contribution"
+              tfsa-chart-2 nil nil)))
 
 (defn asset-distribution-chart []
   (chart-box "ASSET TYPE DISTRIBUTION"
@@ -361,10 +361,10 @@
 (defmethod render-page :main [{:keys [data modal]}]
   (let [col
         (if (= (->
-                 data
-                 (get :sample)
-                 (first)
-                 (get :is-sample))
+                data
+                (get :sample)
+                (first)
+                (get :is-sample))
                "yes")
           col-sample-data
           col-real-data)]
@@ -404,8 +404,8 @@
 
 (when (= :loading (:page @state))
   (build-app-data-from-localstorage-data (or
-                                           (get-data-from-localstorage)
-                                           (get-sample-data)))
+                                          (get-data-from-localstorage)
+                                          (get-sample-data)))
   (js/setTimeout #(page :main)))
 
 ;; conditionally start your application based on the presence of an "app" element

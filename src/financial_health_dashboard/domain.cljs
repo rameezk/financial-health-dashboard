@@ -94,10 +94,10 @@
           second-last-em-fund-balance (get (-> emergency-fund (reverse) (nth 1 nil)) :amount)
           delta                       (/ (- latest-em-fund-balance second-last-em-fund-balance) latest-monthly-expense)]
       (if (= delta 0.0)
-        {:direction :same :delta delta}
+        {:direction :same :delta delta :percentage 0}
         (if (< delta 0)
-          {:direction :down :delta (* -1 delta)}
-          {:direction :up :delta delta})))
+          {:direction :down :delta (* -1 delta) :percentage (* (/ delta second-last-em-fund-balance) -100)}
+          {:direction :up :delta delta :percentage (* (/ delta second-last-em-fund-balance) 100)})))
     nil))
 
 (defn sample [data]
