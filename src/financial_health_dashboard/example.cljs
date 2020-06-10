@@ -25,7 +25,8 @@
   [["monthly-expense" this-year 1 20000]])
 
 (def emergency-fund
-  [["emergency-fund" this-year 4 60000]])
+  [["emergency-fund" this-year 3 50000]
+   ["emergency-fund" this-year 4 60000]])
 
 (def example-comment
   [["comment" "some random comment"]])

@@ -92,12 +92,13 @@
     (let [latest-monthly-expense      (get (last monthly-expense) :amount)
           latest-em-fund-balance      (get (last emergency-fund) :amount)
           second-last-em-fund-balance (get (-> emergency-fund (reverse) (nth 1 nil)) :amount)
-          delta                       (/ (- latest-em-fund-balance second-last-em-fund-balance) latest-monthly-expense)]
+          change-in-amount            (- latest-em-fund-balance second-last-em-fund-balance)
+          delta                       (/ change-in-amount latest-monthly-expense)]
       (if (= delta 0.0)
         {:direction :same :delta delta :percentage 0}
         (if (< delta 0)
-          {:direction :down :delta (* -1 delta) :percentage (* (/ delta second-last-em-fund-balance) -100)}
-          {:direction :up :delta delta :percentage (* (/ delta second-last-em-fund-balance) 100)})))
+          {:direction :down :delta (* -1 delta) :percentage (* (/ change-in-amount second-last-em-fund-balance) -100)}
+          {:direction :up :delta delta :percentage (* (/ change-in-amount second-last-em-fund-balance) 100)})))
     nil))
 
 (defn sample [data]
