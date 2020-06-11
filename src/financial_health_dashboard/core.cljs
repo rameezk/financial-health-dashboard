@@ -131,21 +131,28 @@
                                           :backgroundColor "#F08080"}]}}]
     (js/Chart. context (clj->js chart-data))))
 
-(defn line-chart
-  [id cdx cdy]
+(defn cash-flow-chart
+  [id labels incomes expenses]
   (let [context    (.getContext (.getElementById js/document id) "2d")
         chart-data {:type    "line"
                     :options {:legend {:labels {:fontColor "white"}}
                               :scales {:xAxes [{:ticks {:fontColor "white" :maxTicksLimit 12}}]
                                        :yAxes [{:ticks {:fontColor "white"}}]}}
-                    :data    {:labels   cdx
-                              :datasets [{:data                   cdy
-                                          :label                  "Salary"
+                    :data    {:labels   labels
+                              :datasets [{:data                   incomes
+                                          :label                  "Income"
                                           :lineTension            0
                                           :fill                   false
                                           :borderColor            "#90EE90"
                                           :cubicInterpolationMode "linear"
-                                          :backgroundColor        "#90EE90"}]}}]
+                                          :backgroundColor        "#90EE90"}
+                                         {:data                   expenses
+                                          :label                  "Expense"
+                                          :lineTension            0
+                                          :fill                   false
+                                          :borderColor            "#EA3C53"
+                                          :cubicInterpolationMode "linear"
+                                          :backgroundColor        "#EA3C53"}]}}]
 
     (js/Chart. context (clj->js chart-data))))
 
@@ -355,12 +362,13 @@
 (def custom-month-year
   (tf/formatter "MMM-yy"))
 
-(defn salary-over-time-chart [{:keys [salaries]}]
-  (let [x (->> salaries (map :cljs-date) (map #(tf/unparse custom-month-year %)) (take-last 13))
-        y (->> salaries (map :amount) (take-last 13))]
-    (chart-box "SALARY OVER TIME" (draw-chart
-                                    "salary-over-time"
-                                    line-chart x y nil nil))))
+(defn cash-flow-over-time-chart [{:keys [income expenses]}]
+  (let [labels   (->> income (map :cljs-date) (map #(tf/unparse custom-month-year %)) (take-last 13))
+        income   (->> income (map :amount) (take-last 13))
+        expenses (->> expenses (map :amount) (take-last 13))]
+    (chart-box "CASH FLOW OVER TIME" (draw-chart
+                                       "cash-flow-over-time"
+                                       cash-flow-chart labels income expenses nil))))
 
 (defn net-worth-over-time-chart [{:keys [net-worths]}]
   (let [labels    (->> net-worths (map :cljs-date) (map #(tf/unparse custom-month-year %)))
@@ -455,7 +463,7 @@
      [col 4 12 (net-worth-over-time-chart data)]
      [col 4 12 (assets-over-time-chart data)]
      [col 4 12 (liabilities-over-time-chart data)]
-     [col 12 12 (salary-over-time-chart data)]
+     [col 12 12 (cash-flow-over-time-chart data)]
      [col 6 12 (tfsa-yearly-contributions-chart data)]
      [col 6 12 (tfsa-lifetime-contribution-chart data)]
      [col 4 12 (asset-distribution-chart)]

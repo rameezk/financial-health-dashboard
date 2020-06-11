@@ -41,9 +41,12 @@
    ["comment"
     []
     "A row used for any kind of comment"]
-   ["salary"
-    [:d/year :d/month :d/amount]
-    "Salary"]
+   ["income"
+    [:d/name :d/year :d/month :d/amount]
+    "Income"]
+   ["expense"
+    [:d/name :d/year :d/month :d/amount]
+    "Expense"]
    ["emergency-monthly-expense"
     [:d/year :d/month :d/amount]
     "Monthly expense. This doesn't include contributions to RA's, investments or savings accounts."]
@@ -79,12 +82,13 @@
            :cljs-date (time/date-time year month day)
            :timestamp (.getTime date))))
 
-(defn salaries [data]
-  (->> data (filter (type-of-f? :salary))
+
+;; DATA EXTRACTORS
+(defn income [data]
+  (->> data (filter (type-of-f? :income))
        (map timestamped)
        (sort-by :timestamp)))
 
-;; DATA EXTRACTORS
 (defn emergency-monthly-expense [data]
   (->> data (filter (type-of-f? :emergency-monthly-expense))
        (map timestamped)
@@ -198,9 +202,15 @@
                                   :limit (get tfsa-limits
                                               (keyword (str (:year %))))))))
 
+(defn expenses [data]
+  (->> data (filter (type-of-f? :expense))
+       (map timestamped)
+       (sort-by :timestamp)))
+
 (defn all-your-bucks [data]
   (let [sample                           (sample data)
-        salaries                         (salaries data)
+        income                           (income data)
+        expenses                         (->> data (expenses) (net-per-month) (make-series-from-grouped-data))
         emergency-fund                   (emergency-fund data)
         emergency-monthly-expense        (emergency-monthly-expense data)
         emergency-fund-months            (emergency-fund-months emergency-fund emergency-monthly-expense)
@@ -221,7 +231,8 @@
                                               (map-tfsa-yearly-limits))
         tfsa-contributions-over-lifetime (tfsa-contributions-over-lifetime tfsa-contributions)]
     {:sample                           sample
-     :salaries                         salaries
+     :income                           income
+     :expenses                         expenses
      :emergency-fund-months            emergency-fund-months
      :emergency-fund-months-change     emergency-fund-months-change
      :net-worths                       net-worths

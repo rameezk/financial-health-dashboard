@@ -16,12 +16,20 @@
    ["year-goal" this-year 13]
    ["year-goal" this-year 11]])
 
-(def salary
-  [["salary" this-year 1 20000]
-   ["salary" this-year 2 18000]
-   ["salary" this-year 3 22000]
-   ["salary" this-year 4 19000]
-   ["salary" this-year 5 28000]])
+(def income
+  [["income" "salary" this-year 1 20000]
+   ["income" "salary" this-year 2 18000]
+   ["income" "salary" this-year 3 22000]
+   ["income" "salary" this-year 4 19000]
+   ["income" "salary" this-year 5 28000]])
+
+(def expense
+  [["expense" "day-to-day" this-year 1 18000]
+   ["expense" "recurring" this-year 1 2000]
+   ["expense" "day-to-day" this-year 2 19000]
+   ["expense" "day-to-day" this-year 3 21000]
+   ["expense" "day-to-day" this-year 4 19000]
+   ["expense" "day-to-day" this-year 5 21000]])
 
 (def emergency-monthly-expense
   [["emergency-monthly-expense" this-year 1 20000]])
@@ -58,8 +66,9 @@
   (->> [sample
         date-of-birth
         year-goals
-        salary
-        monthly-expense
+        income
+        expense
+        emergency-monthly-expense
         emergency-fund
         assets
         liabilities
