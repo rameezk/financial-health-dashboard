@@ -44,7 +44,7 @@
    ["salary"
     [:d/year :d/month :d/amount]
     "Salary"]
-   ["monthly-expense"
+   ["emergency-monthly-expense"
     [:d/year :d/month :d/amount]
     "Monthly expense. This doesn't include contributions to RA's, investments or savings accounts."]
    ["emergency-fund"
@@ -85,8 +85,8 @@
        (sort-by :timestamp)))
 
 ;; DATA EXTRACTORS
-(defn monthly-expense [data]
-  (->> data (filter (type-of-f? :monthly-expense))
+(defn emergency-monthly-expense [data]
+  (->> data (filter (type-of-f? :emergency-monthly-expense))
        (map timestamped)
        (sort-by :timestamp)))
 
@@ -95,18 +95,18 @@
        (map timestamped)
        (sort-by :timestamp)))
 
-(defn emergency-fund-months [emergency-fund monthly-expense]
-  (let [latest-monthly-expense        (get (last monthly-expense) :amount)
-        latest-emergency-fund-balance (get (last emergency-fund) :amount)]
-    (/ latest-emergency-fund-balance latest-monthly-expense)))
+(defn emergency-fund-months [emergency-fund emergency-monthly-expense]
+  (let [latest-emergency-monthly-expense (get (last emergency-monthly-expense) :amount)
+        latest-emergency-fund-balance    (get (last emergency-fund) :amount)]
+    (/ latest-emergency-fund-balance latest-emergency-monthly-expense)))
 
-(defn emergency-fund-months-change [emergency-fund monthly-expense]
+(defn emergency-fund-months-change [emergency-fund emergency-monthly-expense]
   (if (> (count emergency-fund) 1)
-    (let [latest-monthly-expense      (get (last monthly-expense) :amount)
-          latest-em-fund-balance      (get (last emergency-fund) :amount)
-          second-last-em-fund-balance (get (-> emergency-fund (reverse) (nth 1 nil)) :amount)
-          change-in-amount            (- latest-em-fund-balance second-last-em-fund-balance)
-          delta                       (/ change-in-amount latest-monthly-expense)]
+    (let [latest-emergency-monthly-expense (get (last emergency-monthly-expense) :amount)
+          latest-em-fund-balance           (get (last emergency-fund) :amount)
+          second-last-em-fund-balance      (get (-> emergency-fund (reverse) (nth 1 nil)) :amount)
+          change-in-amount                 (- latest-em-fund-balance second-last-em-fund-balance)
+          delta                            (/ change-in-amount latest-emergency-monthly-expense)]
       (if (= delta 0.0)
         {:direction :same :delta delta :percentage 0}
         (if (< delta 0)
@@ -202,9 +202,9 @@
   (let [sample                           (sample data)
         salaries                         (salaries data)
         emergency-fund                   (emergency-fund data)
-        monthly-expense                  (monthly-expense data)
-        emergency-fund-months            (emergency-fund-months emergency-fund monthly-expense)
-        emergency-fund-months-change     (emergency-fund-months-change emergency-fund monthly-expense)
+        emergency-monthly-expense        (emergency-monthly-expense data)
+        emergency-fund-months            (emergency-fund-months emergency-fund emergency-monthly-expense)
+        emergency-fund-months-change     (emergency-fund-months-change emergency-fund emergency-monthly-expense)
         assets                           (assets data)
         net-assets-per-month             (net-per-month assets)
         net-assets-series                (make-series-from-grouped-data net-assets-per-month)

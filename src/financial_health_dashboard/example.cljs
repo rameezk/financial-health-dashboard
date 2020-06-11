@@ -23,8 +23,8 @@
    ["salary" this-year 4 19000]
    ["salary" this-year 5 28000]])
 
-(def monthly-expense
-  [["monthly-expense" this-year 1 20000]])
+(def emergency-monthly-expense
+  [["emergency-monthly-expense" this-year 1 20000]])
 
 (def emergency-fund
   [["emergency-fund" this-year 3 50000]
