@@ -19,7 +19,9 @@
 (def salary
   [["salary" this-year 1 20000]
    ["salary" this-year 2 18000]
-   ["salary" this-year 3 22000]])
+   ["salary" this-year 3 22000]
+   ["salary" this-year 4 19000]
+   ["salary" this-year 5 28000]])
 
 (def monthly-expense
   [["monthly-expense" this-year 1 20000]])
@@ -37,12 +39,20 @@
 (def assets
   [["asset" "emergency-fund" this-year 1 10000]
    ["asset" "emergency-fund" this-year 2 20000]
+   ["asset" "emergency-fund" this-year 3 30000]
    ["asset" "TFSA" this-year 1 30000]
-   ["asset" "TFSA" this-year 2 40000]])
+   ["asset" "TFSA" this-year 2 40000]
+   ["asset" "TFSA" this-year 3 50000]])
 
 (def liabilities
   [["liability" "home-loan" this-year 1 8000]
    ["liability" "home-loan" this-year 2 6000]])
+
+(def tfsa-contributions
+  [["tfsa-contribution" 2016 3 0]
+   ["tfsa-contribution" this-year 2 6000]
+   ["tfsa-contribution" this-year 3 6000]
+   ["tfsa-contribution" this-year 4 6000]])
 
 (def data-piped
   (->> [sample
@@ -52,7 +62,8 @@
         monthly-expense
         emergency-fund
         assets
-        liabilities]
+        liabilities
+        tfsa-contributions]
        (reduce into)
        (map #(->> % (map str) (str/join "|")))
        (str/join "\n")))

@@ -137,7 +137,7 @@
         chart-data {:type    "line"
                     :options {:legend {:labels {:fontColor "white"}}
                               :scales {:xAxes [{:ticks {:fontColor "white" :maxTicksLimit 12}}]
-                                       :yAxes [{:ticks {:fontColor "white" }}]}}
+                                       :yAxes [{:ticks {:fontColor "white"}}]}}
                     :data    {:labels   cdx
                               :datasets [{:data                   cdy
                                           :label                  "Salary"
@@ -203,34 +203,34 @@
 
     (js/Chart. context (clj->js chart-data))))
 
-(defn tfsa-chart-1
-  [id]
+(defn tfsa-yearly-chart
+  [id labels contributions limits]
   (let [context    (.getContext (.getElementById js/document id) "2d")
         chart-data {:type    "horizontalBar"
                     :options {:legend {:labels {:fontColor "white"}}
                               :scales {:xAxes [{:ticks {:fontColor "white" :beginAtZero true}}]
                                        :yAxes [{:ticks {:fontColor "white"}}]}}
-                    :data    {:labels   ["2015" "2016" "2017" "2018" "2019" "2020"]
-                              :datasets [{:data            [30000 30000 33000 33000 33000 36000]
-                                          :label           "Yearly Limit"
+                    :data    {:labels   labels
+                              :datasets [{:data            limits
+                                          :label           "Limit"
                                           :backgroundColor "#EA3C53"}
-                                         {:data            [0 0 0 0 17000 24000]
-                                          :label           "Yearly Contribution"
+                                         {:data            contributions
+                                          :label           "Contribution"
                                           :backgroundColor "#90EE90"}]}}]
     (js/Chart. context (clj->js chart-data))))
 
-(defn tfsa-chart-2
-  [id]
+(defn tfsa-lifetime-chart
+  [id contribution limit]
   (let [context    (.getContext (.getElementById js/document id) "2d")
         chart-data {:type    "horizontalBar"
                     :options {:legend {:labels {:fontColor "white"}}
                               :scales {:xAxes [{:ticks {:fontColor "white" :beginAtZero true}}]
                                        :yAxes [{:ticks {:fontColor "white"}}]}}
                     :data    {:labels   ["Lifetime"]
-                              :datasets [{:data            [500000]
+                              :datasets [{:data            limit
                                           :label           "Limit"
                                           :backgroundColor "#EA3C53"}
-                                         {:data            [(+ 17000 24000)]
+                                         {:data            contribution
                                           :label           "Contribution"
                                           :backgroundColor "#90EE90"}]}}]
     (js/Chart. context (clj->js chart-data))))
@@ -409,17 +409,23 @@
        [:p.subtitle.is-size-7.has-text-light.has-text-warning
         [:i.fa.fa-arrow-right] (str " " (format-number (get net-worth-change :delta)) " (" (format-number (get net-worth-change :percentage)) "%)")]))])
 
-(defn tfsa-yearly-contributions-chart []
-  (chart-box "TFSA YEARLY CONTRIBUTIONS"
-             (draw-chart
-               "tfsa-yearly-contributions"
-               tfsa-chart-1 nil nil nil nil)))
+(defn tfsa-yearly-contributions-chart [{:keys [tfsa-contributions-per-year]}]
+  (println tfsa-contributions-per-year)
+  (let [labels        (->> tfsa-contributions-per-year (map :year))
+        contributions (->> tfsa-contributions-per-year (map :amount))
+        limits        (->> tfsa-contributions-per-year (map :limit))]
+    (chart-box "TFSA YEARLY CONTRIBUTIONS"
+               (draw-chart
+                 "tfsa-yearly-contributions"
+                 tfsa-yearly-chart labels contributions limits nil))))
 
-(defn tfsa-lifetime-contribution-chart []
-  (chart-box "TFSA LIFETIME CONTRIBUTION"
-             (draw-chart
-               "tfsa-lifetime-contribution"
-               tfsa-chart-2 nil nil nil nil)))
+(defn tfsa-lifetime-contribution-chart [{:keys [tfsa-contributions-over-lifetime]}]
+  (let [contribution [(:amount tfsa-contributions-over-lifetime)]
+        limit        [(:limit tfsa-contributions-over-lifetime)]]
+    (chart-box "TFSA LIFETIME CONTRIBUTION"
+               (draw-chart
+                 "tfsa-lifetime-contribution"
+                 tfsa-lifetime-chart contribution limit nil nil))))
 
 (defn asset-distribution-chart []
   (chart-box "ASSET TYPE DISTRIBUTION"
@@ -450,8 +456,8 @@
      [col 4 12 (assets-over-time-chart data)]
      [col 4 12 (liabilities-over-time-chart data)]
      [col 12 12 (salary-over-time-chart data)]
-     [col 6 12 (tfsa-yearly-contributions-chart)]
-     [col 6 12 (tfsa-lifetime-contribution-chart)]
+     [col 6 12 (tfsa-yearly-contributions-chart data)]
+     [col 6 12 (tfsa-lifetime-contribution-chart data)]
      [col 4 12 (asset-distribution-chart)]
      [col 4 12 (asset-geographic-distribution-chart)]
      [col 4 12 (asset-allocation-chart)]]))

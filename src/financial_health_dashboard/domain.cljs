@@ -1,9 +1,7 @@
 (ns financial-health-dashboard.domain
   (:require
    [clojure.spec.alpha :as s]
-   [cljs-time.core :as time]
-   [cljs-time.coerce :as time.coerce]
-   [clojure.string :as string]))
+   [cljs-time.core :as time]))
 
 (defn not-empty-string? [s] (and (string? s)
                                  (not-empty s)))
@@ -12,7 +10,20 @@
 (def yes "yes")
 (def no "no")
 
+(def tfsa-lifetime-limit 500000)
+
+(def tfsa-limits
+  {:2016 30000
+   :2017 30000
+   :2018 33000
+   :2019 33000
+   :2020 33000
+   :2021 36000})
+
+
 ;; SPECS
+
+
 (s/def :d/year year?)
 (s/def :d/month month?)
 (s/def :d/amount number?)
@@ -42,7 +53,9 @@
    ["asset"
     [:d/name :d/year :d/month :d/amount]]
    ["liability"
-    [:d/name :d/year :d/month :d/amount]]])
+    [:d/name :d/year :d/month :d/amount]]
+   ["tfsa-contribution"
+    [:d/year :d/month :d/amount]]])
 
 (def data-types (->> data-types-config
                      (map (juxt first second))
@@ -143,10 +156,8 @@
 (defn flatten-grouped-months [grouped-months]
   (map (fn [[[y m] a]] {:year y :month m :amount a}) grouped-months))
 
-
 (defn net-worths [assets liabilities]
-  (let [
-        l  (->> liabilities (map #(assoc % :amount (* -1 (:amount %)))))
+  (let [l  (->> liabilities (map #(assoc % :amount (* -1 (:amount %)))))
         al (concat assets l)]
     (->> al (map #(assoc % :grouping [(:year %) (:month %)]))
          (group-by :grouping)
@@ -155,34 +166,69 @@
          (into {}))))
 
 (defn make-series-from-grouped-data [grouped-data]
-(->> grouped-data (flatten-grouped-months)
-     (map timestamped)
-     (sort-by :timestamp)))
+  (->> grouped-data (flatten-grouped-months)
+       (map timestamped)
+       (sort-by :timestamp)))
 
+(defn tfsa-contributions [data]
+  (->> data (filter (type-of-f? :tfsa-contribution))
+       (map timestamped)
+       (sort-by :timestamped)))
+
+(defn tax-year [date]
+  (let [year  (time/year date)
+        month (time/month date)]
+    (if (> month 2) (inc year) year)))
+
+(defn tfsa-contributions-per-year [contributions]
+  (->> contributions (map #(assoc % :tax-year [(tax-year (:cljs-date %))]))
+       (group-by :tax-year)
+       (map (fn [[g t]]
+              (println g)
+              [g (->> t (map :amount) (reduce +))]))
+       (into {})))
+
+(defn tfsa-contributions-over-lifetime [contributions]
+  (let [total (->> contributions (map :amount) (reduce +))
+        limit tfsa-lifetime-limit]
+    {:amount total :limit limit}))
+
+(defn map-tfsa-yearly-limits [contributions]
+  (->> contributions (map #(assoc %
+                                  :limit (get tfsa-limits
+                                              (keyword (str (:year %))))))))
 
 (defn all-your-bucks [data]
-  (let [sample                       (sample data)
-        salaries                     (salaries data)
-        emergency-fund               (emergency-fund data)
-        monthly-expense              (monthly-expense data)
-        emergency-fund-months        (emergency-fund-months emergency-fund monthly-expense)
-        emergency-fund-months-change (emergency-fund-months-change emergency-fund monthly-expense)
-        assets                       (assets data)
-        net-assets-per-month         (net-per-month assets)
-        net-assets-series            (make-series-from-grouped-data net-assets-per-month)
-        liabilities                  (liabilities data)
-        net-liabilities-per-month    (net-per-month liabilities)
-        net-liabilities-series       (make-series-from-grouped-data net-liabilities-per-month)
-        net-worth                    (net-worth net-assets-per-month net-liabilities-per-month)
-        net-worths                   (make-series-from-grouped-data (net-worths assets liabilities))
-        net-worth-change             (net-worth-change net-assets-per-month net-liabilities-per-month)]
-    {:sample                       sample
-     :salaries                     salaries
-     :emergency-fund-months        emergency-fund-months
-     :emergency-fund-months-change emergency-fund-months-change
-     :net-worths                   net-worths
-     :net-worth                    net-worth
-     :net-worth-change             net-worth-change
-     :net-assets                   net-assets-series
-     :net-liabilities              net-liabilities-series}))
+  (let [sample                           (sample data)
+        salaries                         (salaries data)
+        emergency-fund                   (emergency-fund data)
+        monthly-expense                  (monthly-expense data)
+        emergency-fund-months            (emergency-fund-months emergency-fund monthly-expense)
+        emergency-fund-months-change     (emergency-fund-months-change emergency-fund monthly-expense)
+        assets                           (assets data)
+        net-assets-per-month             (net-per-month assets)
+        net-assets-series                (make-series-from-grouped-data net-assets-per-month)
+        liabilities                      (liabilities data)
+        net-liabilities-per-month        (net-per-month liabilities)
+        net-liabilities-series           (make-series-from-grouped-data net-liabilities-per-month)
+        net-worth                        (net-worth net-assets-per-month net-liabilities-per-month)
+        net-worths                       (make-series-from-grouped-data (net-worths assets liabilities))
+        net-worth-change                 (net-worth-change net-assets-per-month net-liabilities-per-month)
+        tfsa-contributions               (tfsa-contributions data)
+        tfsa-contributions-per-year      (->> tfsa-contributions
+                                              (tfsa-contributions-per-year)
+                                              (make-series-from-grouped-data)
+                                              (map-tfsa-yearly-limits))
+        tfsa-contributions-over-lifetime (tfsa-contributions-over-lifetime tfsa-contributions)]
+    {:sample                           sample
+     :salaries                         salaries
+     :emergency-fund-months            emergency-fund-months
+     :emergency-fund-months-change     emergency-fund-months-change
+     :net-worths                       net-worths
+     :net-worth                        net-worth
+     :net-worth-change                 net-worth-change
+     :net-assets                       net-assets-series
+     :net-liabilities                  net-liabilities-series
+     :tfsa-contributions-per-year      tfsa-contributions-per-year
+     :tfsa-contributions-over-lifetime tfsa-contributions-over-lifetime}))
 
