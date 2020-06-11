@@ -356,8 +356,8 @@
   (tf/formatter "MMM-yy"))
 
 (defn salary-over-time-chart [{:keys [salaries]}]
-  (let [x (->> salaries (map :cljs-date) (map #(tf/unparse custom-month-year %)))
-        y (->> salaries (map :amount))]
+  (let [x (->> salaries (map :cljs-date) (map #(tf/unparse custom-month-year %)) (take-last 13))
+        y (->> salaries (map :amount) (take-last 13))]
     (chart-box "SALARY OVER TIME" (draw-chart
                                     "salary-over-time"
                                     line-chart x y nil nil))))
