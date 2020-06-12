@@ -188,14 +188,12 @@
   (->> contributions (map #(assoc % :tax-year [(tax-year (:cljs-date %))]))
        (group-by :tax-year)
        (map (fn [[g t]]
-              (println g)
               [g (->> t (map :amount) (reduce +))]))
        (into {})))
 
 (defn tfsa-contributions-over-lifetime [contributions]
-  (let [total (->> contributions (map :amount) (reduce +))
-        limit tfsa-lifetime-limit]
-    {:amount total :limit limit}))
+  (let [total (->> contributions (map :amount) (reduce +))]
+    {:amount total :limit tfsa-lifetime-limit}))
 
 (defn map-tfsa-yearly-limits [contributions]
   (->> contributions (map #(assoc %

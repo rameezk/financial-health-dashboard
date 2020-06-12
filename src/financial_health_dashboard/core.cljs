@@ -156,6 +156,24 @@
 
     (js/Chart. context (clj->js chart-data))))
 
+(defn savings-rate-chart
+  [id labels savings-rate]
+  (let [context    (.getContext (.getElementById js/document id) "2d")
+        chart-data {:type    "line"
+                    :options {:legend {:labels {:fontColor "white"}}
+                              :scales {:xAxes [{:ticks {:fontColor "white" :maxTicksLimit 12}}]
+                                       :yAxes [{:ticks {:fontColor "white"}}]}}
+                    :data    {:labels   labels
+                              :datasets [{:data                   savings-rate
+                                          :label                  "Savings Rate"
+                                          :lineTension            0
+                                          :fill                   false
+                                          :borderColor            "#8e44ad"
+                                          :cubicInterpolationMode "linear"
+                                          :backgroundColor        "#8e44ad"}]}}]
+
+    (js/Chart. context (clj->js chart-data))))
+
 (defn net-worth-line-chart
   [id labels net-worth]
   (let [context    (.getContext (.getElementById js/document id) "2d")
@@ -370,6 +388,16 @@
                                        "cash-flow-over-time"
                                        cash-flow-chart labels income expenses nil))))
 
+(defn savings-rate-over-time-chart [{:keys [income expenses]}]
+  (let [labels       (->> income (map :cljs-date) (map #(tf/unparse custom-month-year %)) (take-last 13))
+        income       (->> income (map :amount) (take-last 13))
+        expenses     (->> expenses (map :amount) (take-last 13))
+        savings      (map - income expenses)
+        savings-rate (map #(* % 100) (map / savings income))]
+    (chart-box "SAVINGS RATE OVER TIME" (draw-chart
+                                          "savings-rate-over-time"
+                                          savings-rate-chart labels savings-rate nil nil))))
+
 (defn net-worth-over-time-chart [{:keys [net-worths]}]
   (let [labels    (->> net-worths (map :cljs-date) (map #(tf/unparse custom-month-year %)))
         net-worth (->> net-worths (map :amount))]
@@ -418,7 +446,6 @@
         [:i.fa.fa-arrow-right] (str " " (format-number (get net-worth-change :delta)) " (" (format-number (get net-worth-change :percentage)) "%)")]))])
 
 (defn tfsa-yearly-contributions-chart [{:keys [tfsa-contributions-per-year]}]
-  (println tfsa-contributions-per-year)
   (let [labels        (->> tfsa-contributions-per-year (map :year))
         contributions (->> tfsa-contributions-per-year (map :amount))
         limits        (->> tfsa-contributions-per-year (map :limit))]
@@ -463,7 +490,8 @@
      [col 4 12 (net-worth-over-time-chart data)]
      [col 4 12 (assets-over-time-chart data)]
      [col 4 12 (liabilities-over-time-chart data)]
-     [col 12 12 (cash-flow-over-time-chart data)]
+     [col 6 12 (cash-flow-over-time-chart data)]
+     [col 6 12 (savings-rate-over-time-chart data)]
      [col 6 12 (tfsa-yearly-contributions-chart data)]
      [col 6 12 (tfsa-lifetime-contribution-chart data)]
      [col 4 12 (asset-distribution-chart)]
