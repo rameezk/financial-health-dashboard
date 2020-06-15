@@ -445,6 +445,33 @@
        [:p.subtitle.is-size-7.has-text-light.has-text-warning
         [:i.fa.fa-arrow-right] (str " " (format-number (get net-worth-change :delta)) " (" (format-number (get net-worth-change :percentage)) "%)")]))])
 
+
+(defn fi-investments-info-box [{:keys [fi-investments fi-investments-change]}]
+  [:div.has-text-centered.info-box
+   [:p.heading "FI INVESTMENTS"]
+   [:p.title {:class "has-text-light"} (format-number (:amount (last fi-investments)))]
+   (if (= (get fi-investments-change :direction) :up)
+     [:p.subtitle.is-size-7.has-text-light.has-text-success
+      [:i.fa.fa-arrow-up] (str " " (format-number (get fi-investments-change :delta)) " (" (format-number (get fi-investments-change :percentage)) "%)")]
+     (if (= (get fi-investments-change :direction) :down)
+       [:p.subtitle.is-size-7.has-text-light.has-text-danger
+        [:i.fa.fa-arrow-down] (str " " (format-number (get fi-investments-change :delta)) " (" (format-number (get fi-investments-change :percentage)) "%)")]
+       [:p.subtitle.is-size-7.has-text-light.has-text-warning
+        [:i.fa.fa-arrow-right] (str " " (format-number (get fi-investments-change :delta)) " (" (format-number (get fi-investments-change :percentage)) "%)")]))])
+
+(defn fi-monthly-withdrawal-info-box [{:keys [fi-investments fi-monthly-withdrawal-change]}]
+  [:div.has-text-centered.info-box
+   [:p.heading "FI MONTHLY WITHDRAWAL"]
+   [:p.title {:class "has-text-light"} (format-number (:fi-monthly-withdrawal (last fi-investments)))]
+   (if (= (get fi-monthly-withdrawal-change :direction) :up)
+     [:p.subtitle.is-size-7.has-text-light.has-text-success
+      [:i.fa.fa-arrow-up] (str " " (format-number (get fi-monthly-withdrawal-change :delta)) " (" (format-number (get fi-monthly-withdrawal-change :percentage)) "%)")]
+     (if (= (get fi-monthly-withdrawal-change :direction) :down)
+       [:p.subtitle.is-size-7.has-text-light.has-text-danger
+        [:i.fa.fa-arrow-down] (str " " (format-number (get fi-monthly-withdrawal-change :delta)) " (" (format-number (get fi-monthly-withdrawal-change :percentage)) "%)")]
+       [:p.subtitle.is-size-7.has-text-light.has-text-warning
+        [:i.fa.fa-arrow-right] (str " " (format-number (get fi-monthly-withdrawal-change :delta)) " (" (format-number (get fi-monthly-withdrawal-change :percentage)) "%)")]))])
+
 (defn tfsa-yearly-contributions-chart [{:keys [tfsa-contributions-per-year]}]
   (let [labels        (->> tfsa-contributions-per-year (map :year))
         contributions (->> tfsa-contributions-per-year (map :amount))
@@ -485,8 +512,10 @@
           col-sample-data
           col-real-data)]
     [:div.columns.is-multiline.is-centered
-     [col 6 12 (net-worth-info-box data)]
-     [col 6 12 (emergency-fund-months-info-box data)]
+     [col 3 12 (net-worth-info-box data)]
+     [col 3 12 (emergency-fund-months-info-box data)]
+     [col 3 12 (fi-investments-info-box data)]
+     [col 3 12 (fi-monthly-withdrawal-info-box data)]
      [col 4 12 (net-worth-over-time-chart data)]
      [col 4 12 (assets-over-time-chart data)]
      [col 4 12 (liabilities-over-time-chart data)]

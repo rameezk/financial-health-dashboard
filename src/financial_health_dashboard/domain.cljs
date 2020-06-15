@@ -20,6 +20,9 @@
    :2020 33000
    :2021 36000})
 
+(def fi-yearly-withdrawal-rate 0.04)
+(def fi-monthly-withdrawal-rate (/ fi-yearly-withdrawal-rate 12))
+
 
 ;; SPECS
 
@@ -205,7 +208,46 @@
        (map timestamped)
        (sort-by :timestamp)))
 
-(defn all-your-bucks [data]
+(defn fi-investments [assets]
+  (->> assets
+       (filter #(= (:name %) "tfsa"))
+       (map #(assoc % :grouping [(:year %) (:month %)]))
+       (group-by :grouping)
+       (map (fn [[g t]]
+              [g (->> t (map :amount) (reduce +))]))
+       (into {})))
+
+(defn fi-investments-change [fi-investments]
+  (if (> (count fi-investments) 1)
+    (let [latest-amount      (:amount (last fi-investments ))
+          second-last-amount (:amount (first (take-last 2 fi-investments)))
+          delta              (- latest-amount second-last-amount)]
+      (if (zero? delta)
+        {:direction :same :delta delta :percentage 0}
+        (if (neg? delta)
+          {:direction :down :delta (* -1 delta) :percentage (* (/ delta second-last-amount) -100)}
+          {:direction :up :delta delta :percentage (* (/ delta second-last-amount) 100)})))
+    nil))
+
+(defn map-fi-withdrawals [investments]
+  (->> investments (map #(assoc %
+                                :fi-monthly-withdrawal (Math/ceil ( * fi-monthly-withdrawal-rate (:amount %) ))))))
+
+
+(defn fi-monthly-withdrawal-change [fi-investments]
+  (if (> (count fi-investments) 1)
+    (let [latest-amount      (:fi-monthly-withdrawal (last fi-investments ))
+          second-last-amount (:fi-monthly-withdrawal (first (take-last 2 fi-investments)))
+          delta              (- latest-amount second-last-amount)]
+      (if (zero? delta)
+        {:direction :same :delta delta :percentage 0}
+        (if (neg? delta)
+          {:direction :down :delta (* -1 delta) :percentage (* (/ delta second-last-amount) -100)}
+          {:direction :up :delta delta :percentage (* (/ delta second-last-amount) 100)})))
+    nil))
+
+
+(defn all-your-bucks[data]
   (let [sample                           (sample data)
         income                           (income data)
         expenses                         (->> data (expenses) (net-per-month) (make-series-from-grouped-data))
@@ -227,7 +269,10 @@
                                               (tfsa-contributions-per-year)
                                               (make-series-from-grouped-data)
                                               (map-tfsa-yearly-limits))
-        tfsa-contributions-over-lifetime (tfsa-contributions-over-lifetime tfsa-contributions)]
+        tfsa-contributions-over-lifetime (tfsa-contributions-over-lifetime tfsa-contributions)
+        fi-investments                   (map-fi-withdrawals (make-series-from-grouped-data (fi-investments assets)))
+        fi-investments-change            (fi-investments-change fi-investments)
+        fi-monthly-withdrawal-change     (fi-monthly-withdrawal-change fi-investments)]
     {:sample                           sample
      :income                           income
      :expenses                         expenses
@@ -239,5 +284,8 @@
      :net-assets                       net-assets-series
      :net-liabilities                  net-liabilities-series
      :tfsa-contributions-per-year      tfsa-contributions-per-year
-     :tfsa-contributions-over-lifetime tfsa-contributions-over-lifetime}))
+     :tfsa-contributions-over-lifetime tfsa-contributions-over-lifetime
+     :fi-investments                   fi-investments
+     :fi-investments-change            fi-investments-change
+     :fi-monthly-withdrawal-change     fi-monthly-withdrawal-change}))
 
