@@ -459,53 +459,62 @@
        [:p.subtitle.is-size-7.has-text-light.has-text-warning
         [:i.fa.fa-arrow-right] (str " " (format-number (get fi-investments-change :delta)) " (" (format-number (get fi-investments-change :percentage)) "%)")]))])
 
-(defn fi-monthly-withdrawal-info-box [{:keys [fi-investments fi-monthly-withdrawal-change]}]
+(defn info-box-with-amount-and-change [title amount change change-percentage change-direction]
   [:div.has-text-centered.info-box
-   [:p.heading "FI MONTHLY WITHDRAWAL"]
-   [:p.title {:class "has-text-light"} (format-number (:fi-monthly-withdrawal (last fi-investments)))]
-   (if (= (get fi-monthly-withdrawal-change :direction) :up)
+   [:p.heading title]
+   [:p.title {:class "has-text-light"} (format-number amount)]
+   (if (= change-direction :up)
      [:p.subtitle.is-size-7.has-text-light.has-text-success
-      [:i.fa.fa-arrow-up] (str " " (format-number (get fi-monthly-withdrawal-change :delta)) " (" (format-number (get fi-monthly-withdrawal-change :percentage)) "%)")]
-     (if (= (get fi-monthly-withdrawal-change :direction) :down)
+      [:i.fa.fa-arrow-up] (str " " (format-number change) " (" (format-number change-percentage) "%)")]
+     (if (= change-direction :down)
        [:p.subtitle.is-size-7.has-text-light.has-text-danger
-        [:i.fa.fa-arrow-down] (str " " (format-number (get fi-monthly-withdrawal-change :delta)) " (" (format-number (get fi-monthly-withdrawal-change :percentage)) "%)")]
+        [:i.fa.fa-arrow-down] (str " " (format-number change) " (" (format-number change-percentage) "%)")]
        [:p.subtitle.is-size-7.has-text-light.has-text-warning
-        [:i.fa.fa-arrow-right] (str " " (format-number (get fi-monthly-withdrawal-change :delta)) " (" (format-number (get fi-monthly-withdrawal-change :percentage)) "%)")]))])
+        [:i.fa.fa-arrow-right] (str " " (format-number change) " (" (format-number change-percentage) "%)")]))])
+
+(defn fi-monthly-withdrawal-info-box [{:keys [fi-investments fi-monthly-withdrawal-change]}]
+  (let [title             "FI MONTHLY WITHDRAWAL"
+        amount            (:fi-monthly-withdrawal (last fi-investments))
+        change            (:delta fi-monthly-withdrawal-change)
+        change-percentage (:percentage fi-monthly-withdrawal-change)
+        change-direction  (:direction fi-monthly-withdrawal-change)]
+    (info-box-with-amount-and-change title amount change change-percentage change-direction)))
+
 
 (defn tfsa-yearly-contributions-chart [{:keys [tfsa-contributions-per-year]}]
-  (let [labels        (->> tfsa-contributions-per-year (map :year))
-        contributions (->> tfsa-contributions-per-year (map :amount))
-        limits        (->> tfsa-contributions-per-year (map :limit))]
-    (chart-box "TFSA YEARLY CONTRIBUTIONS"
-               (draw-chart
-                 "tfsa-yearly-contributions"
-                 tfsa-yearly-chart labels contributions limits nil))))
+(let [labels        (->> tfsa-contributions-per-year (map :year))
+      contributions (->> tfsa-contributions-per-year (map :amount))
+      limits        (->> tfsa-contributions-per-year (map :limit))]
+  (chart-box "TFSA YEARLY CONTRIBUTIONS"
+             (draw-chart
+               "tfsa-yearly-contributions"
+               tfsa-yearly-chart labels contributions limits nil))))
 
 (defn tfsa-lifetime-contribution-chart [{:keys [tfsa-contributions-over-lifetime]}]
-  (let [contribution [(:amount tfsa-contributions-over-lifetime)]
-        limit        [(:limit tfsa-contributions-over-lifetime)]]
-    (chart-box "TFSA LIFETIME CONTRIBUTION"
-               (draw-chart
-                 "tfsa-lifetime-contribution"
-                 tfsa-lifetime-chart contribution limit nil nil))))
+(let [contribution [(:amount tfsa-contributions-over-lifetime)]
+      limit        [(:limit tfsa-contributions-over-lifetime)]]
+  (chart-box "TFSA LIFETIME CONTRIBUTION"
+             (draw-chart
+               "tfsa-lifetime-contribution"
+               tfsa-lifetime-chart contribution limit nil nil))))
 
 (defn asset-distribution-chart []
-  (chart-box "ASSET TYPE DISTRIBUTION"
-             (draw-chart "asset-distribution" pie-chart-1 nil nil nil nil)))
+(chart-box "ASSET TYPE DISTRIBUTION"
+           (draw-chart "asset-distribution" pie-chart-1 nil nil nil nil)))
 
 (defn asset-geographic-distribution-chart []
-  (chart-box "ASSET GEOGRAPHIC DISTRIBUTION"
-             (draw-chart "asset-geographic-distribution" pie-chart-2 nil nil nil nil)))
+(chart-box "ASSET GEOGRAPHIC DISTRIBUTION"
+           (draw-chart "asset-geographic-distribution" pie-chart-2 nil nil nil nil)))
 
 (defn asset-allocation-chart []
-  (chart-box "ASSET ALLOCATION"
-             (draw-chart "asset-allocation" pie-chart-3 nil nil nil nil)))
+(chart-box "ASSET ALLOCATION"
+           (draw-chart "asset-allocation" pie-chart-3 nil nil nil nil)))
 
 (defmethod render-page :main [{:keys [data]}]
-  (let [col
-        (if (= (->
-                 data
-                 (get :sample)
+(let [col
+      (if (= (->
+               data
+               (get :sample)
                  (first)
                  (get :is-sample))
                "yes")
