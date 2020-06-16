@@ -459,18 +459,23 @@
        [:p.subtitle.is-size-7.has-text-light.has-text-warning
         [:i.fa.fa-arrow-right] (str " " (format-number (get fi-investments-change :delta)) " (" (format-number (get fi-investments-change :percentage)) "%)")]))])
 
+(defn change-str [change change-percentage]
+  (if (nil? change-percentage)
+    (str " " (format-number change))
+    (str " " (format-number change) " (" (format-number change-percentage) "%)")))
+
 (defn info-box-with-amount-and-change [title amount change change-percentage change-direction]
   [:div.has-text-centered.info-box
    [:p.heading title]
    [:p.title {:class "has-text-light"} (format-number amount)]
    (if (= change-direction :up)
      [:p.subtitle.is-size-7.has-text-light.has-text-success
-      [:i.fa.fa-arrow-up] (str " " (format-number change) " (" (format-number change-percentage) "%)")]
+      [:i.fa.fa-arrow-up] (change-str change change-percentage)]
      (if (= change-direction :down)
        [:p.subtitle.is-size-7.has-text-light.has-text-danger
-        [:i.fa.fa-arrow-down] (str " " (format-number change) " (" (format-number change-percentage) "%)")]
+        [:i.fa.fa-arrow-down] (change-str change change-percentage)]
        [:p.subtitle.is-size-7.has-text-light.has-text-warning
-        [:i.fa.fa-arrow-right] (str " " (format-number change) " (" (format-number change-percentage) "%)")]))])
+        [:i.fa.fa-arrow-right] (change-str change change-percentage)]))])
 
 (defn fi-monthly-withdrawal-info-box [{:keys [fi-investments fi-monthly-withdrawal-change]}]
   (let [title             "FI MONTHLY WITHDRAWAL"
@@ -480,15 +485,31 @@
         change-direction  (:direction fi-monthly-withdrawal-change)]
     (info-box-with-amount-and-change title amount change change-percentage change-direction)))
 
+(defn fi-percentage-info-box []
+  (let [title             "FI PERCENTAGE"
+        amount            0.32
+        change            0.12
+        change-percentage nil
+        change-direction  :up]
+    (info-box-with-amount-and-change title amount change change-percentage change-direction)))
+
+(defn investments-info-box []
+  (let [title             "INVESTMENTS"
+        amount            300000
+        change            20000
+        change-percentage 10.2
+        change-direction  :up]
+    (info-box-with-amount-and-change title amount change change-percentage change-direction)))
+
 
 (defn tfsa-yearly-contributions-chart [{:keys [tfsa-contributions-per-year]}]
-(let [labels        (->> tfsa-contributions-per-year (map :year))
-      contributions (->> tfsa-contributions-per-year (map :amount))
-      limits        (->> tfsa-contributions-per-year (map :limit))]
-  (chart-box "TFSA YEARLY CONTRIBUTIONS"
-             (draw-chart
-               "tfsa-yearly-contributions"
-               tfsa-yearly-chart labels contributions limits nil))))
+  (let [labels        (->> tfsa-contributions-per-year (map :year))
+        contributions (->> tfsa-contributions-per-year (map :amount))
+        limits        (->> tfsa-contributions-per-year (map :limit))]
+    (chart-box "TFSA YEARLY CONTRIBUTIONS"
+               (draw-chart
+                 "tfsa-yearly-contributions"
+                 tfsa-yearly-chart labels contributions limits nil))))
 
 (defn tfsa-lifetime-contribution-chart [{:keys [tfsa-contributions-over-lifetime]}]
 (let [contribution [(:amount tfsa-contributions-over-lifetime)]
@@ -511,20 +532,22 @@
            (draw-chart "asset-allocation" pie-chart-3 nil nil nil nil)))
 
 (defmethod render-page :main [{:keys [data]}]
-(let [col
-      (if (= (->
-               data
-               (get :sample)
+  (let [col
+        (if (= (->
+                 data
+                 (get :sample)
                  (first)
                  (get :is-sample))
                "yes")
           col-sample-data
           col-real-data)]
     [:div.columns.is-multiline.is-centered
-     [col 3 12 (net-worth-info-box data)]
-     [col 3 12 (emergency-fund-months-info-box data)]
-     [col 3 12 (fi-investments-info-box data)]
-     [col 3 12 (fi-monthly-withdrawal-info-box data)]
+     [col 2 12 (net-worth-info-box data)]
+     [col 2 12 (emergency-fund-months-info-box data)]
+     [col 2 12 (investments-info-box)]
+     [col 2 12 (fi-investments-info-box data)]
+     [col 2 12 (fi-monthly-withdrawal-info-box data)]
+     [col 2 12 (fi-percentage-info-box )]
      [col 4 12 (net-worth-over-time-chart data)]
      [col 4 12 (assets-over-time-chart data)]
      [col 4 12 (liabilities-over-time-chart data)]
