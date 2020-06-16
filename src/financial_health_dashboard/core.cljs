@@ -570,35 +570,42 @@
      ;; [col 4 12 (asset-allocation-chart)]
      ]))
 
+(defn footer []
+  [:footer.footer
+   [:div.content.has-text-centered
+    [:p "Built with ❤️ by "
+     [:a {:href "https://rameezkhan.me"} "Rameez"]]]])
+
 (defn app []
   [:div
    [nav]
    (when-not (= :hidden (get-in @state [:modal :key]))
      [modal state])
    [:div.section.has-background-light
-    (render-page @state)]])
+    (render-page @state)]
+   (footer)])
 
 (defn sleep [f ms]
-  (js/setTimeout f ms))
+(js/setTimeout f ms))
 
 (defmethod render-page :loading [state]
-  [:div "loading"])
+[:div "loading"])
 
 (defn get-app-element []
-  (gdom/getElement "app"))
+(gdom/getElement "app"))
 
 (defn mount [el]
-  (reagent/render-component [app] el))
+(reagent/render-component [app] el))
 
 (defn mount-app-element []
-  (when-let [el (get-app-element)]
-    (mount el)))
+(when-let [el (get-app-element)]
+  (mount el)))
 
 (when (= :loading (:page @state))
-  (build-app-data-from-localstorage-data (or
-                                           (get-data-from-localstorage)
-                                           (get-sample-data)))
-  (js/setTimeout #(page :main)))
+(build-app-data-from-localstorage-data (or
+                                         (get-data-from-localstorage)
+                                         (get-sample-data)))
+(js/setTimeout #(page :main)))
 
 ;; conditionally start your application based on the presence of an "app" element
 ;; this is particularly helpful for testing this ns without launching the app
@@ -606,8 +613,8 @@
 
 ;; specify reload hook with ^;after-load metadata
 (defn ^:after-load on-reload []
-  (mount-app-element)
-  ;; optionally touch your app-state to force rerendering depending on
-  ;; your application
-  ;; (swap! app-state update-in [:__figwheel_counter] inc)
-  )
+(mount-app-element)
+;; optionally touch your app-state to force rerendering depending on
+;; your application
+;; (swap! app-state update-in [:__figwheel_counter] inc)
+)
