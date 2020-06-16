@@ -5,7 +5,6 @@
    [financial-health-dashboard.domain :as domain]
    [financial-health-dashboard.localstorage :as localstorage]
    [financial-health-dashboard.example :as example]
-   [cljs-time.core :as time]
    [clojure.edn :as edn]
    [cljs-time.format :as tf]
    [goog.dom :as gdom]
@@ -35,6 +34,11 @@
 
 (defn hide-modal []
   (swap! state #(assoc % :modal {:key :hidden})))
+
+(defn toggle-burger-menu []
+  (gc/toggle (js/document.getElementById "nav-menu") "is-active")
+  (gc/toggle (js/document.getElementById "nav-menu-burger") "is-active"))
+
 
 (defn set-file-data [data]
   (swap! state #(assoc-in % [:modal :data] data)))
@@ -102,6 +106,7 @@
            [:button.button.is-primary
             {:on-click (fn [_] (build-app-data-from-uploaded-data result)
                          (hide-modal)
+                         (toggle-burger-menu)
                          (page :loading)
                          (js/setTimeout #(page :main)))}
             "GO"]]])))])
@@ -326,8 +331,7 @@
      [:a.navbar-item {:href "#"} "💰 Financial Health Dashboard"]
      [:a.navbar-burger.burger {:id       "nav-menu-burger"
                                :on-click (fn []
-                                           (do (gc/toggle (js/document.getElementById "nav-menu") "is-active")
-                                               (gc/toggle (js/document.getElementById "nav-menu-burger") "is-active")))}
+                                           (toggle-burger-menu))}
       [:span {:aria-hidden "true"}]
       [:span {:aria-hidden "true"}]
       [:span {:aria-hidden "true"}]]]
