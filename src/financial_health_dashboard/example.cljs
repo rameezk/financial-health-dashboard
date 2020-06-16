@@ -62,6 +62,9 @@
    ["tfsa-contribution" this-year 3 6000]
    ["tfsa-contribution" this-year 4 6000]])
 
+(def fi-expense
+  [["fi-expense" 10000]])
+
 (def data-piped
   (->> [sample
         date-of-birth
@@ -72,7 +75,8 @@
         emergency-fund
         assets
         liabilities
-        tfsa-contributions]
+        tfsa-contributions
+        fi-expense]
        (reduce into)
        (map #(->> % (map str) (str/join "|")))
        (str/join "\n")))

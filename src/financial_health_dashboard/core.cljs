@@ -485,20 +485,24 @@
         change-direction  (:direction fi-monthly-withdrawal-change)]
     (info-box-with-amount-and-change title amount change change-percentage change-direction)))
 
-(defn fi-percentage-info-box []
+(defn fi-percentage-info-box [{:keys [fi-investments]}]
   (let [title             "FI PERCENTAGE"
-        amount            0.32
-        change            0.12
+        amount            (:fi-percentage (last fi-investments))
+        change            (- amount (:fi-percentage (first (take-last 2 fi-investments))))
         change-percentage nil
-        change-direction  :up]
+        change-direction  (if (pos? change)
+                            :up
+                            (if (neg? change)
+                              :down
+                              :same))]
     (info-box-with-amount-and-change title amount change change-percentage change-direction)))
 
-(defn investments-info-box []
+(defn investments-info-box [{:keys [investments investments-change]}]
   (let [title             "INVESTMENTS"
-        amount            300000
-        change            20000
-        change-percentage 10.2
-        change-direction  :up]
+        amount            (:amount (last investments))
+        change            (:delta investments-change)
+        change-percentage (:percentage investments-change)
+        change-direction  (:direction investments-change)]
     (info-box-with-amount-and-change title amount change change-percentage change-direction)))
 
 
@@ -544,10 +548,10 @@
     [:div.columns.is-multiline.is-centered
      [col 2 12 (net-worth-info-box data)]
      [col 2 12 (emergency-fund-months-info-box data)]
-     [col 2 12 (investments-info-box)]
+     [col 2 12 (investments-info-box data)]
      [col 2 12 (fi-investments-info-box data)]
      [col 2 12 (fi-monthly-withdrawal-info-box data)]
-     [col 2 12 (fi-percentage-info-box )]
+     [col 2 12 (fi-percentage-info-box data)]
      [col 4 12 (net-worth-over-time-chart data)]
      [col 4 12 (assets-over-time-chart data)]
      [col 4 12 (liabilities-over-time-chart data)]
