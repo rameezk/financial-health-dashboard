@@ -336,7 +336,8 @@
       ;; [:a.navbar-item {:on-click #(show-modal :help nil)}
       ;;  [:span.icon [:i.fa.fa-question-circle]]]
       [:a.navbar-item {:on-click #(show-modal :upload nil)}
-       [:span.icon [:i.fa.fa-upload]]]
+       [:span.icon [:i.fa.fa-upload]]
+       [:span.is-hidden-desktop "Upload Data"]]
       ;; [:a.navbar-item {:on-click #(show-modal :save nil)}
       ;;  [:span.icon [:i.fa.fa-save]]]
       ;; [:a.navbar-item {:on-click #(show-modal :changelog nil)}
