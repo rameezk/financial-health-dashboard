@@ -323,7 +323,7 @@
   [:div
    [:nav.navbar.is-dark
     [:div.navbar-brand
-     [:a.navbar-item {:href "#"} "💰 Dashboard (alpha)"]
+     [:a.navbar-item {:href "#"} "💰 Financial Health Dashboard"]
      [:a.navbar-burger.burger {:id       "nav-menu-burger"
                                :on-click (fn []
                                            (do (gc/toggle (js/document.getElementById "nav-menu") "is-active")
@@ -333,14 +333,15 @@
       [:span {:aria-hidden "true"}]]]
     [:div.navbar-menu {:id "nav-menu"}
      [:div.navbar-end
-      [:a.navbar-item {:on-click #(show-modal :help nil)}
-       [:span.icon [:i.fa.fa-question-circle]]]
+      ;; [:a.navbar-item {:on-click #(show-modal :help nil)}
+      ;;  [:span.icon [:i.fa.fa-question-circle]]]
       [:a.navbar-item {:on-click #(show-modal :upload nil)}
        [:span.icon [:i.fa.fa-upload]]]
-      [:a.navbar-item {:on-click #(show-modal :save nil)}
-       [:span.icon [:i.fa.fa-save]]]
-      [:a.navbar-item {:on-click #(show-modal :changelog nil)}
-       [:span.icon [:i.fa.fa-history]]]]]]])
+      ;; [:a.navbar-item {:on-click #(show-modal :save nil)}
+      ;;  [:span.icon [:i.fa.fa-save]]]
+      ;; [:a.navbar-item {:on-click #(show-modal :changelog nil)}
+      ;;  [:span.icon [:i.fa.fa-history]]]
+      ]]]])
 
 (defn modal [model-state]
   [:div.modal.is-active
@@ -559,9 +560,10 @@
      [col 6 12 (savings-rate-over-time-chart data)]
      [col 6 12 (tfsa-yearly-contributions-chart data)]
      [col 6 12 (tfsa-lifetime-contribution-chart data)]
-     [col 4 12 (asset-distribution-chart)]
-     [col 4 12 (asset-geographic-distribution-chart)]
-     [col 4 12 (asset-allocation-chart)]]))
+     ;; [col 4 12 (asset-distribution-chart)]
+     ;; [col 4 12 (asset-geographic-distribution-chart)]
+     ;; [col 4 12 (asset-allocation-chart)]
+     ]))
 
 (defn app []
   [:div
