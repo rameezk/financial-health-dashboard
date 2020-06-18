@@ -439,7 +439,7 @@
     years-invested))
 
 (defn investment-benchmark-chart
-  [id labels investment]
+  [id labels investment investment2 investment3]
   (let [context    (.getContext (.getElementById js/document id) "2d")
         chart-data {:type    "line"
                     :options {:legend   {:labels {:fontColor "white"}}
@@ -448,25 +448,49 @@
                               :tooltips {:callbacks {:label (fn [tooltip-item data] (format-number (aget tooltip-item "yLabel")))}}}
                     :data    {:labels   labels
                               :datasets [{:data                   investment
-                                          :label                  "Investment"
+                                          :label                  "Current Investment"
                                           :lineTension            0
                                           :fill                   false
                                           :borderColor            "#8e44ad"
                                           :cubicInterpolationMode "linear"
-                                          :backgroundColor        "#8e44ad"}]}}]
+                                          :backgroundColor        "#8e44ad"}
+                                         {:data                   investment2
+                                          :label                  "Invest 25,000 Monthly"
+                                          :lineTension            0
+                                          :fill                   false
+                                          :borderColor            "#e67e22"
+                                          :cubicInterpolationMode "linear"
+                                          :backgroundColor        "#e67e22"}
+                                         {:data                   investment3
+                                          :label                  "Invest 10,000 Monthly"
+                                          :lineTension            0
+                                          :fill                   false
+                                          :borderColor            "#2ecc71"
+                                          :cubicInterpolationMode "linear"
+                                          :backgroundColor        "#2ecc71"}]}}]
 
     (js/Chart. context (clj->js chart-data))))
 
 (defn investment-benchmark-over-time-chart []
-  (let [labels     (range 41)
+  (let [labels     (range 36)
         investment (->> labels (map #(calculate-investment-value {:monthly-amount                   6000
+                                                                  :annual-growth-rate               0.15
+                                                                  :annual-monthly-amount-escalation 0.06
+                                                                  :annual-inflation                 0.06
+                                                                  :years-invested                   %})))
+        invest-2   (->> labels (map #(calculate-investment-value {:monthly-amount                   25000
+                                                                  :annual-growth-rate               0.15
+                                                                  :annual-monthly-amount-escalation 0.06
+                                                                  :annual-inflation                 0.06
+                                                                  :years-invested                   %})))
+        invest-3   (->> labels (map #(calculate-investment-value {:monthly-amount                   10000
                                                                   :annual-growth-rate               0.15
                                                                   :annual-monthly-amount-escalation 0.06
                                                                   :annual-inflation                 0.06
                                                                   :years-invested                   %})))]
     (chart-box "INVESTMENT BENCHMARK" (draw-chart
                                         "investment-benchmark-chart"
-                                        investment-benchmark-chart labels investment nil nil))))
+                                        investment-benchmark-chart labels investment invest-2 invest-3))))
 
 (defn net-worth-over-time-chart [{:keys [net-worths]}]
   (let [labels    (->> net-worths (map :cljs-date) (map #(tf/unparse custom-month-year %)))
