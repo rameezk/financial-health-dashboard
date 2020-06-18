@@ -404,6 +404,70 @@
                                           "savings-rate-over-time"
                                           savings-rate-chart labels savings-rate nil nil))))
 
+(defn calculate-growth [amount rate]
+  (* amount (+ 1 rate)))
+
+(defn monthly-rate-from-annual [annual-rate]
+  (- (Math/pow (+ 1 annual-rate) (/ 1 12)) 1))
+
+(defn is-new-year? [month]
+  (zero? (mod month 12)))
+
+(defn apply-inflation [amount inflation-rate years]
+  (/ amount (Math/pow (+ 1 inflation-rate) years)))
+
+
+(defn calculate-investment-value [{:keys [monthly-amount
+                                          annual-growth-rate
+                                          annual-monthly-amount-escalation
+                                          annual-inflation
+                                          years-invested]}]
+  (apply-inflation
+    (let [monthly-growth (monthly-rate-from-annual annual-growth-rate)
+          months         (* years-invested 12)]
+      (loop [month          1
+             monthly-amount monthly-amount
+             total          (calculate-growth monthly-amount monthly-growth)]
+        (if (>= month months)
+          total
+          (recur (inc month)
+                 (if (is-new-year? (inc month))
+                   (calculate-growth monthly-amount annual-monthly-amount-escalation)
+                   monthly-amount)
+                 (calculate-growth (+ total monthly-amount) monthly-growth)))))
+    annual-inflation
+    years-invested))
+
+(defn investment-benchmark-chart
+  [id labels investment]
+  (let [context    (.getContext (.getElementById js/document id) "2d")
+        chart-data {:type    "line"
+                    :options {:legend   {:labels {:fontColor "white"}}
+                              :scales   {:xAxes [{:scaleLabel {:display true :labelString "years" :fontColor "white"} :ticks {:fontColor "white" :maxTicksLimit 12}}]
+                                         :yAxes [{:ticks {:callback (fn [value, index, values] (format-number value)) :fontColor "white"}}]}
+                              :tooltips {:callbacks {:label (fn [tooltip-item data] (format-number (aget tooltip-item "yLabel")))}}}
+                    :data    {:labels   labels
+                              :datasets [{:data                   investment
+                                          :label                  "Investment"
+                                          :lineTension            0
+                                          :fill                   false
+                                          :borderColor            "#8e44ad"
+                                          :cubicInterpolationMode "linear"
+                                          :backgroundColor        "#8e44ad"}]}}]
+
+    (js/Chart. context (clj->js chart-data))))
+
+(defn investment-benchmark-over-time-chart []
+  (let [labels     (range 41)
+        investment (->> labels (map #(calculate-investment-value {:monthly-amount                   6000
+                                                                  :annual-growth-rate               0.15
+                                                                  :annual-monthly-amount-escalation 0.06
+                                                                  :annual-inflation                 0.06
+                                                                  :years-invested                   %})))]
+    (chart-box "INVESTMENT BENCHMARK" (draw-chart
+                                        "investment-benchmark-chart"
+                                        investment-benchmark-chart labels investment nil nil))))
+
 (defn net-worth-over-time-chart [{:keys [net-worths]}]
   (let [labels    (->> net-worths (map :cljs-date) (map #(tf/unparse custom-month-year %)))
         net-worth (->> net-worths (map :amount))]
@@ -565,6 +629,7 @@
      [col 6 12 (savings-rate-over-time-chart data)]
      [col 6 12 (tfsa-yearly-contributions-chart data)]
      [col 6 12 (tfsa-lifetime-contribution-chart data)]
+     [col 12 12 (investment-benchmark-over-time-chart)]
      ;; [col 4 12 (asset-distribution-chart)]
      ;; [col 4 12 (asset-geographic-distribution-chart)]
      ;; [col 4 12 (asset-allocation-chart)]
