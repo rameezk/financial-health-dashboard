@@ -35,10 +35,10 @@ expense|recurring|2020|8|12000
 expense|home-loan-payment|2020|8|3000
 
 asset|home|2020|8|1000000
-liability|home-loan|2020|8|800000
+liability|home-loan|2020|8|790000
 
 asset|car|2020|8|98887
-liability|car-loan|2020|8|20000
+liability|car-loan|2020|8|19500
 
 asset|cheque-account|2020|8|6636
 asset|credit-card|2020|8|3198
@@ -61,10 +61,10 @@ expense|recurring|2020|9|11000
 expense|home-loan-payment|2020|9|3000
 
 asset|home|2020|9|1000000
-liability|home-loan|2020|9|900000
+liability|home-loan|2020|9|780000
 
 asset|car|2020|9|98887
-liability|car-loan|2020|9|20000
+liability|car-loan|2020|9|19000
 
 asset|cheque-account|2020|9|6636
 asset|credit-card|2020|9|3198
