@@ -221,6 +221,7 @@
                   (= (:name %) "liberty-ra")
                   (= (:name %) "liberty-preservation-fund")
                   (= (:name %) "sygnia-ra")
+                  (= (:name %) "td-ameritrade")
                   (= (:name %) "education-fund")))
        (map #(assoc % :grouping [(:year %) (:month %)]))
        (group-by :grouping)
@@ -242,7 +243,9 @@
 
 (defn fi-investments [assets]
   (->> assets
-       (filter #(= (:name %) "tfsa"))
+       (filter #(or
+                  #(= (:name %) "tfsa")
+                  #(= (:name %) "td-ameritrade")))
        (map #(assoc % :grouping [(:year %) (:month %)]))
        (group-by :grouping)
        (map (fn [[g t]]
