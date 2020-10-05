@@ -136,7 +136,7 @@
        (group-by :grouping)
        (map (fn [[g t]]
               [g (->> t (map :amount) (reduce +))]))
-       (into {})))
+       (into (sorted-map))))
 
 (defn liabilities [data]
   (->> data (filter (type-of-f? :liability))
