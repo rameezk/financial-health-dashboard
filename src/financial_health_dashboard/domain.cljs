@@ -244,8 +244,8 @@
 (defn fi-investments [assets]
   (->> assets
        (filter #(or
-                  #(= (:name %) "tfsa")
-                  #(= (:name %) "td-ameritrade")))
+                  (= (:name %) "tfsa")
+                  (= (:name %) "td-ameritrade")))
        (map #(assoc % :grouping [(:year %) (:month %)]))
        (group-by :grouping)
        (map (fn [[g t]]
