@@ -10,43 +10,11 @@ Live version can be accessed [here](https://financialhealth.app) 👈🏽.
 
 Assess your financial health with a high level dashboard.
 
-### Features
-- [x] Chart to view your salary over time
-- [ ] View your current net worth
-
-### Future work
-- [ ] View your net worth over time
-- [ ] Track TFSA contributions
-
-## Development
-
-To get an interactive development environment run:
-
-    lein fig:build
-
-This will auto compile and send all changes to the browser without the
-need to reload. After the compilation process is complete, you will
-get a Browser Connected REPL. An easy way to try it is:
-
-    (js/alert "Am I connected?")
-
-and you should see an alert in the browser window.
-
-To clean all compiled files:
-
-	lein clean
-
-To create a production build run:
-
-	lein clean
-	lein fig:min
-
-
 ## License
 
 MIT License
 
-Copyright (c) 2020 Rameez Khan
+Copyright (c) 2021 Rameez Khan
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

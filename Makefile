@@ -1,7 +1,7 @@
-.PHONY: build test
+.PHONY: build
 
-build:
-	lein fig:build
+dev:
+	yarn dev
 
-production:
-	lein fig:min
+release:
+	yarn release

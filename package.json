@@ -1,0 +1,19 @@
+{
+  "name": "financial-health-dashboard",
+  "version": "2.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:rameezk/financial-health-dashboard.git",
+  "author": "Rameez Khan",
+  "license": "MIT",
+  "dependencies": {
+    "react": "17.0.1",
+    "react-dom": "17.0.1"
+  },
+  "devDependencies": {
+    "shadow-cljs": "^2.11.18"
+  },
+  "scripts": {
+    "dev": "shadow-cljs watch app",
+    "release": "shadow-cljs release app"
+  }
+}
