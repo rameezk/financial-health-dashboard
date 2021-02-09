@@ -4,4 +4,4 @@ dev:
 	yarn dev
 
 release:
-    yarn release
+	yarn release
