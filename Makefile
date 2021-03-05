@@ -5,3 +5,6 @@ build:
 
 production:
 	lein fig:min
+
+release:
+	lein fig:min
