@@ -1,7 +1,7 @@
 {:source-paths
  ["src"]
 
- ;; :nrepl {:port 9000}
+ :nrepl {:port 9000}
 
  :dependencies
  [[cider/cider-nrepl "0.25.8"]
