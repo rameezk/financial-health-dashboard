@@ -51,7 +51,11 @@
    (:user/account-balances data))
 
   ([data year]
-   (filter #(= (:account-balance/year %) year) (account-balances data)))
+   (filter #(= (:account-balance/year %) year)
+           (account-balances data)))
 
   ([data year month]
-   (filter #(and (= (:account-balance/year %) year) (= (:account-balance/month %) month)) (account-balances data))))
+   (filter #(and
+             (= (:account-balance/year %) year)
+             (= (:account-balance/month %) month))
+           (account-balances data))))
