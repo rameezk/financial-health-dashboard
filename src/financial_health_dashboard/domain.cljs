@@ -246,7 +246,12 @@
   (->> assets
        (filter #(or
                   (= (:name %) "tfsa")
-                  (= (:name %) "td-ameritrade")))
+                  (= (:name %) "td-ameritrade")
+                  (= (:name %) "valr-btc")
+                  (= (:name %) "valr-eth")
+                  (= (:name %) "luno-btc")
+                  (= (:name %) "liberty-preservation-fund")
+                  (= (:name %) "sygnia-ra")))
        (map #(assoc % :grouping [(:year %) (:month %)]))
        (group-by :grouping)
        (map (fn [[g t]]
