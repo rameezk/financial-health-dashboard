@@ -20,7 +20,8 @@
    :2020 33000
    :2021 36000
    :2022 36000
-   :2023 36000})
+   :2023 36000
+   :2024 36000})
 
 (def fi-yearly-withdrawal-rate 0.04)
 (def fi-monthly-withdrawal-rate (/ fi-yearly-withdrawal-rate 12))
